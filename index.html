@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS SNEAKERS - Future of Footwear</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* Particules de fond animées */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: float 8s infinite;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); }
+        }
+
+        /* Header futuriste */
+        header {
+            position: fixed;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite;
+            letter-spacing: 4px;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px #00ff88); }
+            50% { filter: drop-shadow(0 0 20px #00ff88); }
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #00ff88;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        nav a:hover {
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 20px #00ff88, inset 0 0 20px rgba(0, 255, 136, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            background: radial-gradient(circle at center, #1a0033 0%, #000 100%);
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-size: 80px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff, #00ff88);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientMove 3s ease infinite;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero p {
+            font-size: 24px;
+            color: #00d4ff;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px #00d4ff;
+        }
+
+        .cta-button {
+            padding: 20px 50px;
+            font-size: 20px;
+            border: none;
+            background: linear-gradient(45deg, #ff00ff, #00ff88);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px #ff00ff, 0 0 100px #00ff88;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -50%; }
+            100% { left: 150%; }
+        }
+
+        /* Section Produits */
+        .products {
+            padding: 100px 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .products h2 {
+            text-align: center;
+            font-size: 60px;
+            margin-bottom: 80px;
+            background: linear-gradient(45deg, #00ff88, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 50px;
+            perspective: 1000px;
+        }
+
+        .product-card {
+            background: rgba(20, 20, 40, 0.6);
+            border: 2px solid #00ff88;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.5s;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-card:hover {
+            transform: rotateY(10deg) rotateX(5deg) translateY(-20px);
+            box-shadow: 0 30px 80px rgba(0, 255, 136, 0.5);
+            border-color: #ff00ff;
+        }
+
+        .shoe-container {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* Chaussure flottante */
+        .floating-shoe {
+            width: 250px;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 80px 20px 80px;
+            position: relative;
+            animation: floatShoe 3s ease-in-out infinite;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes floatShoe {
+            0%, 100% { transform: translateY(0) rotateZ(-5deg); }
+            50% { transform: translateY(-30px) rotateZ(5deg); }
+        }
+
+        .floating-shoe::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 50px;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: shadowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes shadowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(0.8); opacity: 0.8; }
+        }
+
+        /* Chaussure sur eau avec flammes */
+        .water-fire-shoe {
+            width: 250px;
+            height: 150px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px 80px 20px 80px;
+            position: relative;
+            animation: floatShoe 3s ease-in-out infinite;
+        }
+
+        .water-effect {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, #00d4ff, #0088ff, #00d4ff);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: waterRipple 2s ease-in-out infinite;
+        }
+
+        @keyframes waterRipple {
+            0%, 100% { transform: scaleX(1); opacity: 0.6; }
+            50% { transform: scaleX(1.2); opacity: 0.3; }
+        }
+
+        .flame {
+            position: absolute;
+            bottom: 10px;
+            width: 20px;
+            height: 30px;
+            background: linear-gradient(to top, #ff6600, #ffff00, transparent);
+            border-radius: 50% 50% 0 0;
+            animation: flameFlicker 0.5s ease-in-out infinite;
+        }
+
+        .flame:nth-child(1) { left: 20%; animation-delay: 0s; }
+        .flame:nth-child(2) { left: 40%; animation-delay: 0.1s; }
+        .flame:nth-child(3) { left: 60%; animation-delay: 0.2s; }
+        .flame:nth-child(4) { left: 80%; animation-delay: 0.15s; }
+
+        @keyframes flameFlicker {
+            0%, 100% { transform: scaleY(1) translateY(0); opacity: 1; }
+            50% { transform: scaleY(1.3) translateY(-5px); opacity: 0.8; }
+        }
+
+        /* Chaussure volante avec propulseurs */
+        .flying-shoe {
+            width: 250px;
+            height: 150px;
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            border-radius: 20px 80px 20px 80px;
+            position: relative;
+            animation: flyShoe 4s ease-in-out infinite;
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.6);
+        }
+
+        @keyframes flyShoe {
+            0%, 100% { transform: translateY(0) translateX(0) rotateZ(0deg); }
+            25% { transform: translateY(-40px) translateX(20px) rotateZ(10deg); }
+            50% { transform: translateY(-60px) translateX(0) rotateZ(0deg); }
+            75% { transform: translateY(-40px) translateX(-20px) rotateZ(-10deg); }
+        }
+
+        .thruster {
+            position: absolute;
+            bottom: -20px;
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(to bottom, #ff00ff, #ff6600, transparent);
+            border-radius: 0 0 50% 50%;
+            animation: thrusterBlast 0.3s ease-in-out infinite;
+        }
+
+        .thruster:nth-child(1) { left: 30%; }
+        .thruster:nth-child(2) { right: 30%; }
+
+        @keyframes thrusterBlast {
+            0%, 100% { transform: scaleY(1); opacity: 1; }
+            50% { transform: scaleY(1.5); opacity: 0.6; }
+        }
+
+        .product-info h3 {
+            font-size: 24px;
+            color: #00ff88;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .product-info p {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 28px;
+            color: #ff00ff;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .buy-button {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #00ff88;
+            background: transparent;
+            color: #00ff88;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .buy-button:hover {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 30px #00ff88;
+            transform: translateY(-3px);
+        }
+
+        /* Hologramme 3D */
+        .hologram-shoe {
+            width: 250px;
+            height: 150px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3) 0%, rgba(0, 212, 255, 0.3) 100%);
+            border-radius: 20px 80px 20px 80px;
+            position: relative;
+            animation: hologramFloat 3s ease-in-out infinite;
+            border: 2px solid #00ff88;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 136, 0.5),
+                inset 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        @keyframes hologramFloat {
+            0%, 100% { 
+                transform: translateY(0) rotateY(0deg);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: translateY(-30px) rotateY(180deg);
+                opacity: 1;
+            }
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 2px solid #00ff88;
+            position: relative;
+            z-index: 2;
+        }
+
+        footer p {
+            color: #00ff88;
+            font-size: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .hero p { font-size: 18px; }
+            header { padding: 15px 20px; }
+            nav { flex-direction: column; gap: 10px; }
+            .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particules de fond -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">⚡ NEXUS SNEAKERS</div>
+        <nav>
+            <a href="#home">ACCUEIL</a>
+            <a href="#products">COLLECTION</a>
+            <a href="#tech">TECHNOLOGIE</a>
+            <a href="#contact">CONTACT</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>FUTURE IS NOW</h1>
+            <p>Les chaussures du futur sont arrivées</p>
+            <button class="cta-button">DÉCOUVRIR LA COLLECTION</button>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products" id="products">
+        <h2>🚀 NOS MODÈLES EXCLUSIFS</h2>
+        <div class="product-grid">
+            
+            <!-- Produit 1 - Chaussure Flottante -->
+            <div class="product-card">
+                <div class="shoe-container">
+                    <div class="floating-shoe"></div>
+                </div>
+                <div class="product-info">
+                    <h3>NEXUS FLOAT X1</h3>
+                    <p>Technologie anti-gravité intégrée. Flotte à 10cm du sol en permanence.</p>
+                    <div class="price">499€</div>
+                    <button class="buy-button">COMMANDER</button>
+                </div>
+            </div>
+
+            <!-- Produit 2 - Chaussure sur Eau avec Flammes -->
+            <div class="product-card">
+                <div class="shoe-container">
+                    <div class="water-fire-shoe">
+                        <div class="flame"></div>
+                        <div class="flame"></div>
+                        <div class="flame"></div>
+                        <div class="flame"></div>
+                    </div>
+                    <div class="water-effect"></div>
+                </div>
+                <div class="product-info">
+                    <h3>AQUA FLAME PRO</h3>
+                    <p>Marche sur l'eau + propulsion à flammes. Vitesse max: 50 km/h.</p>
+                    <div class="price">699€</div>
+                    <button class="buy-button">COMMANDER</button>
+                </div>
+            </div>
+
+            <!-- Produit 3 - Chaussure Volante -->
+            <div class="product-card">
+                <div class="shoe-container">
+                    <div class="flying-shoe">
+                        <div class="thruster"></div>
+                        <div class="thruster"></div>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>SKY RUNNER 3000</h3>
+                    <p>Vol libre jusqu'à 100m d'altitude. Propulseurs ioniques intégrés.</p>
+                    <div class="price">899€</div>
+                    <button class="buy-button">COMMANDER</button>
+                </div>
+            </div>
+
+            <!-- Produit 4 - Hologramme -->
+            <div class="product-card">
+                <div class="shoe-container">
+                    <div class="hologram-shoe">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>PHANTOM HOLOGRAM</h3>
+                    <p>Chaussure holographique. Change de couleur selon votre humeur.</p>
+                    <div class="price">599€</div>
+                    <button class="buy-button">COMMANDER</button>
+                </div>
+            </div>
+
+            <!-- Produit 5 - Plasma Edition -->
+            <div class="product-card">
+                <div class="shoe-container">
+                    <div class="floating-shoe" style="background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);"></div>
+                </div>
+                <div class="product-info">
+                    <h3>PLASMA BOOST</h3>
+                    <p>Propulsion plasma. Atteint la vitesse de la lumière en 3 secondes.</p>
+                    <div class="price">1299€</div>
+                    <button class="buy-button">COMMANDER</button>
+                </div>
+            </div>
+
+            <!-- Produit 6 - Quantum -->
+            <div class="product-card">
+                <div class="shoe-container">
+                    <div class="flying-shoe" style="background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);">
+                        <div class="thruster" style="background: linear-gradient(to bottom, #00ffff, #0088ff, transparent);"></div>
+                        <div class="thruster" style="background: linear-gradient(to bottom, #00ffff, #0088ff, transparent);"></div>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>QUANTUM LEAP</h3>
+                    <p>Téléportation quantique. Déplacez-vous instantanément jusqu'à 1km.</p>
+                    <div class="price">1599€</div>
+                    <button class="buy-button">COMMANDER</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 NEXUS SNEAKERS - The Future of Footwear | Designed in the Year 3000</p>
+    </footer>
+
+    <script>
+        // Génération de particules
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 100; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Effet de cursor personnalisé
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.createElement('div');
+            cursor.style.position = 'fixed';
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursor.style.width = '4px';
+            cursor.style.height = '4px';
+            cursor.style.background = '#00ff88';
+            cursor.style.borderRadius = '50%';
+            cursor.style.pointerEvents = 'none';
+            cursor.style.zIndex = '9999';
+            cursor.style.boxShadow = '0 0 10px #00ff88';
+            document.body.appendChild(cursor);
+            
+            setTimeout(() => {
+                cursor.style.transition = 'all 0.5s';
+                cursor.style.transform = 'scale(3)';
+                cursor.style.opacity = '0';
+            }, 10);
+            
+            setTimeout(() => cursor.remove(), 500);
+        });
+
+        // Animation des boutons "Commander"
+        document.querySelectorAll('.buy-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.textContent = '✓ AJOUTÉ AU PANIER';
+                this.style.background = '#00ff88';
+                this.style.color = '#000';
+                
+                setTimeout(() => {
+                    this.textContent = 'COMMANDER';
+                    this.style.background = 'transparent';
+                    this.style.color = '#00ff88';
+                }, 2000);
+            });
+        });
+
+        // Parallax effect sur les cartes produits
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-20px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
