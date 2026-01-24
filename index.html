@@ -5,13 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS SNEAKERS - Future of Footwear</title>
     <style>
-        /* --- CSS DE BASE & AMBIANCE --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* --- CSS GLOBAL --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Orbitron', 'Segoe UI', sans-serif;
             background: #000;
@@ -20,25 +15,12 @@
             cursor: crosshair;
         }
 
-        /* Particules de fond */
-        .particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-
+        /* --- PARTICULES --- */
+        .particles { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #00ff88;
-            border-radius: 50%;
-            animation: float 8s infinite;
-            box-shadow: 0 0 10px #00ff88;
+            position: absolute; width: 2px; height: 2px; background: #00ff88;
+            border-radius: 50%; animation: float 8s infinite; box-shadow: 0 0 10px #00ff88;
         }
-
         @keyframes float {
             0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
             50% { opacity: 1; }
@@ -47,265 +29,171 @@
 
         /* --- HEADER --- */
         header {
-            position: fixed;
-            width: 100%;
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid #00ff88;
+            position: fixed; width: 100%; padding: 20px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px); border-bottom: 2px solid #00ff88;
             box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
         }
-
         .logo {
-            font-size: 32px;
-            font-weight: bold;
+            font-size: 32px; font-weight: bold;
             background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glow 2s ease-in-out infinite;
-            letter-spacing: 4px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite; letter-spacing: 4px;
         }
-
-        @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 5px #00ff88); }
-            50% { filter: drop-shadow(0 0 20px #00ff88); }
-        }
-
         nav { display: flex; gap: 30px; }
         nav a {
-            color: #00ff88;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 10px 20px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
+            color: #00ff88; text-decoration: none; font-weight: bold;
+            padding: 10px 20px; border: 2px solid transparent; transition: all 0.3s;
+            cursor: pointer;
         }
         nav a:hover {
-            border: 2px solid #00ff88;
-            box-shadow: 0 0 20px #00ff88;
-            transform: translateY(-3px);
+            border: 2px solid #00ff88; box-shadow: 0 0 20px #00ff88; transform: translateY(-3px);
         }
 
-        /* --- HERO SECTION --- */
+        /* --- PANIER (SIDEBAR) --- */
+        .cart-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9998;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .cart-overlay.active { opacity: 1; pointer-events: all; }
+
+        .cart-sidebar {
+            position: fixed; top: 0; right: -450px; width: 400px; height: 100%;
+            background: #0a0a12; border-left: 2px solid #00ff88;
+            z-index: 9999; padding: 25px; display: flex; flex-direction: column;
+            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: -10px 0 50px rgba(0, 255, 136, 0.2);
+        }
+        .cart-sidebar.active { right: 0; }
+
+        .cart-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px;
+        }
+        .cart-header h2 { color: #00ff88; font-size: 22px; text-transform: uppercase; }
+        .close-cart { background: none; border: none; color: #fff; font-size: 30px; cursor: pointer; transition: 0.3s; }
+        .close-cart:hover { color: #ff0055; transform: rotate(90deg); }
+
+        .cart-items { flex: 1; overflow-y: auto; }
+        .cart-item {
+            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1); animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .cart-item img { width: 70px; height: 50px; object-fit: contain; }
+        .cart-item-info h4 { font-size: 14px; margin-bottom: 5px; color: #fff; }
+        .remove-btn { color: #ff0055; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; display: inline-block;}
+        .remove-btn:hover { text-decoration: underline; }
+
+        .cart-footer { border-top: 1px solid #333; padding-top: 20px; }
+        .total-row { display: flex; justify-content: space-between; font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #fff; }
+        .checkout-btn {
+            width: 100%; padding: 18px; background: #00ff88; color: #000;
+            border: none; font-weight: bold; cursor: pointer; font-size: 16px;
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;
+        }
+        .checkout-btn:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        /* --- HERO --- */
         .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 2;
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 2;
             background: radial-gradient(circle at center, #1a0033 0%, #000 100%);
         }
-
         .hero-content { text-align: center; z-index: 10; }
         .hero h1 {
-            font-size: 80px;
-            margin-bottom: 20px;
+            font-size: 80px; margin-bottom: 20px;
             background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff, #00ff88);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradientMove 3s ease infinite;
-            text-transform: uppercase;
-            letter-spacing: 8px;
+            background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: gradientMove 3s ease infinite; text-transform: uppercase; letter-spacing: 8px;
         }
-
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .cta-button {
-            padding: 20px 50px;
-            font-size: 20px;
-            border: none;
+            padding: 20px 50px; font-size: 20px; border: none;
             background: linear-gradient(45deg, #ff00ff, #00ff88);
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
+            color: #fff; font-weight: bold; cursor: pointer; transition: all 0.3s;
+            text-transform: uppercase; letter-spacing: 2px;
         }
         .cta-button:hover { transform: scale(1.1); box-shadow: 0 0 50px #ff00ff; }
 
-        /* --- PRODUCTS SECTION --- */
+        /* --- PRODUCTS --- */
         .products { padding: 100px 50px; position: relative; z-index: 2; }
         .products h2 {
             text-align: center; font-size: 60px; margin-bottom: 80px;
             background: linear-gradient(45deg, #00ff88, #ff00ff);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 50px;
-            perspective: 1000px;
-        }
-
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 50px; perspective: 1000px; }
         .product-card {
-            background: rgba(20, 20, 40, 0.6);
-            border: 2px solid #00ff88;
-            border-radius: 20px;
-            padding: 30px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: all 0.1s ease-out; /* Plus fluide pour le JS */
-            cursor: pointer;
-            overflow: hidden;
+            background: rgba(20, 20, 40, 0.6); border: 2px solid #00ff88;
+            border-radius: 20px; padding: 30px; position: relative;
+            transform-style: preserve-3d; transition: all 0.1s ease-out; cursor: pointer; overflow: hidden;
         }
-
-        /* --- STYLES DES CHAUSSURES & IMAGES --- */
-        .shoe-container {
-            width: 100%;
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        /* Classe générique pour l'animation de base */
+        
+        .shoe-container { width: 100%; height: 250px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
         .shoe-wrapper {
-            width: 280px;
-            height: 180px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 280px; height: 180px; position: relative;
+            display: flex; justify-content: center; align-items: center;
             animation: floatShoe 3s ease-in-out infinite;
         }
-
         .shoe-wrapper img {
-            max-width: 100%;
-            max-height: 100%;
-            transform: rotate(-15deg);
-            filter: drop-shadow(0 20px 20px rgba(0,0,0,0.6));
-            z-index: 5;
-            transition: transform 0.3s;
+            max-width: 100%; max-height: 100%; transform: rotate(-15deg);
+            filter: drop-shadow(0 20px 20px rgba(0,0,0,0.6)); z-index: 5; transition: transform 0.3s;
         }
+        .product-card:hover .shoe-wrapper img { transform: rotate(-20deg) scale(1.1); }
+        @keyframes floatShoe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
-        .product-card:hover .shoe-wrapper img {
-            transform: rotate(-20deg) scale(1.1);
-        }
-
-        @keyframes floatShoe {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        /* --- EFFETS SPÉCIAUX (Flammes, Eau, Propulseurs) --- */
-        
-        /* Flammes */
+        /* EFFETS SPÉCIAUX */
         .flame {
-            position: absolute;
-            bottom: 20px;
-            width: 20px;
-            height: 40px;
+            position: absolute; bottom: 20px; width: 20px; height: 40px;
             background: linear-gradient(to top, #ff6600, #ffff00, transparent);
-            border-radius: 50% 50% 0 0;
-            animation: flameFlicker 0.5s ease-in-out infinite;
-            z-index: 1;
-            filter: blur(2px);
+            border-radius: 50% 50% 0 0; animation: flameFlicker 0.5s ease-in-out infinite;
+            z-index: 1; filter: blur(2px);
         }
-        .flame:nth-child(2) { left: 30%; animation-delay: 0s; }
-        .flame:nth-child(3) { left: 50%; animation-delay: 0.1s; }
-        .flame:nth-child(4) { left: 70%; animation-delay: 0.2s; }
+        .flame:nth-child(2) { left: 30%; } .flame:nth-child(3) { left: 50%; animation-delay: 0.1s; } .flame:nth-child(4) { left: 70%; animation-delay: 0.2s; }
+        @keyframes flameFlicker { 0%, 100% { transform: scaleY(1) translateY(0); opacity: 0.8; } 50% { transform: scaleY(1.3) translateY(-10px); opacity: 1; } }
 
-        @keyframes flameFlicker {
-            0%, 100% { transform: scaleY(1) translateY(0); opacity: 0.8; }
-            50% { transform: scaleY(1.3) translateY(-10px); opacity: 1; }
-        }
-
-        /* Eau */
         .water-effect {
-            position: absolute;
-            bottom: -20px;
-            width: 100%;
-            height: 30px;
+            position: absolute; bottom: -20px; width: 100%; height: 30px;
             background: radial-gradient(ellipse at center, #00d4ff 0%, transparent 70%);
-            opacity: 0.6;
-            animation: waterRipple 2s ease-in-out infinite;
+            opacity: 0.6; animation: waterRipple 2s ease-in-out infinite;
         }
-        @keyframes waterRipple {
-            0%, 100% { transform: scaleX(0.8); opacity: 0.4; }
-            50% { transform: scaleX(1.2); opacity: 0.7; }
-        }
+        @keyframes waterRipple { 0%, 100% { transform: scaleX(0.8); opacity: 0.4; } 50% { transform: scaleX(1.2); opacity: 0.7; } }
 
-        /* Propulseurs */
         .thruster {
-            position: absolute;
-            bottom: 10px;
-            width: 25px;
-            height: 60px;
+            position: absolute; bottom: 10px; width: 25px; height: 60px;
             background: linear-gradient(to bottom, #00ffff, #ff00ff, transparent);
-            filter: blur(4px);
-            animation: thrusterBlast 0.2s linear infinite;
-            z-index: 1;
+            filter: blur(4px); animation: thrusterBlast 0.2s linear infinite; z-index: 1;
         }
-        .thruster:nth-child(2) { left: 20%; transform: rotate(10deg); }
-        .thruster:nth-child(3) { right: 20%; transform: rotate(-10deg); }
+        .thruster:nth-child(2) { left: 20%; transform: rotate(10deg); } .thruster:nth-child(3) { right: 20%; transform: rotate(-10deg); }
+        @keyframes thrusterBlast { 0% { height: 50px; opacity: 0.8; } 100% { height: 70px; opacity: 0.4; } }
 
-        @keyframes thrusterBlast {
-            0% { height: 50px; opacity: 0.8; }
-            100% { height: 70px; opacity: 0.4; }
-        }
-
-        /* Hologramme */
         .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 4px;
-            background: #00ff88;
-            box-shadow: 0 0 15px #00ff88;
-            top: 0;
-            z-index: 10;
-            animation: scan 2s linear infinite;
-            opacity: 0.7;
+            position: absolute; width: 100%; height: 4px; background: #00ff88;
+            box-shadow: 0 0 15px #00ff88; top: 0; z-index: 10; animation: scan 2s linear infinite; opacity: 0.7;
         }
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* --- INFO PRODUIT --- */
         .product-info h3 { font-size: 24px; color: #00ff88; margin-bottom: 10px; text-transform: uppercase; }
         .product-info p { color: #aaa; margin-bottom: 15px; }
         .price { font-size: 28px; color: #ff00ff; font-weight: bold; margin-bottom: 20px; }
-
         .buy-button {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #00ff88;
-            background: transparent;
-            color: #00ff88;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
+            width: 100%; padding: 15px; border: 2px solid #00ff88; background: transparent;
+            color: #00ff88; font-size: 18px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s; text-transform: uppercase;
         }
-        .buy-button:hover {
-            background: #00ff88; color: #000; box-shadow: 0 0 30px #00ff88;
-        }
+        .buy-button:hover { background: #00ff88; color: #000; box-shadow: 0 0 30px #00ff88; }
 
-        footer {
-            padding: 50px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.9);
-            border-top: 2px solid #00ff88;
-            position: relative;
-            z-index: 2;
-        }
-
+        footer { padding: 50px; text-align: center; background: rgba(0, 0, 0, 0.9); border-top: 2px solid #00ff88; position: relative; z-index: 2; }
+        
         @media (max-width: 768px) {
-            .hero h1 { font-size: 40px; }
-            header { padding: 15px 20px; }
-            nav { display: none; } /* Simplifié pour mobile */
-            .product-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 40px; } header { padding: 15px 20px; } nav { display: none; }
+            .product-grid { grid-template-columns: 1fr; } .cart-sidebar { width: 100%; }
         }
     </style>
 </head>
@@ -319,18 +207,36 @@
         <nav>
             <a href="#home">ACCUEIL</a>
             <a href="#products">COLLECTION</a>
-            <a href="#contact">PANIER (<span id="cart-count">0</span>)</a>
+            <!-- Le bouton Panier déclenche le JS -->
+            <a onclick="toggleCart()">PANIER (<span id="cart-count">0</span>)</a>
         </nav>
     </header>
+
+    <!-- Panier (Caché par défaut) -->
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h2>VOTRE ARSENAL</h2>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        <div class="cart-items" id="cart-items-container">
+            <!-- Items injectés ici via JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="total-row">
+                <span>TOTAL:</span>
+                <span id="cart-total">0€</span>
+            </div>
+            <button class="checkout-btn" onclick="alert('Module de paiement Stripe en cours d\'intégration...')">PROCÉDER AU PAIEMENT</button>
+        </div>
+    </div>
 
     <!-- Hero -->
     <section class="hero" id="home">
         <div class="hero-content">
             <h1>FUTURE IS NOW</h1>
             <p>La première boutique de sneakers quantiques.</p>
-            <button class="cta-button" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">
-                VOIR LA COLLECTION
-            </button>
+            <button class="cta-button" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">VOIR LA COLLECTION</button>
         </div>
     </section>
 
@@ -338,64 +244,54 @@
     <section class="products" id="products">
         <h2>🚀 SÉLECTION DU FUTUR</h2>
         <div class="product-grid">
-            <!-- Les produits seront générés ici par JavaScript -->
+            <!-- Produits générés via JS -->
         </div>
     </section>
 
     <footer>
-        <p>© 2024 NEXUS SNEAKERS - Deployed on Vercel</p>
+        <p>© 2024 NEXUS SNEAKERS - The Future of Footwear</p>
     </footer>
 
     <script>
-        // --- 1. BASE DE DONNÉES PRODUITS (Images réelles + Tes Effets) ---
+        // --- 1. CONFIGURATION DES PRODUITS ---
         const products = [
             {
                 id: 1,
                 name: "NEXUS FLOAT X1",
-                desc: "Technologie anti-gravité de base. Confort absolu.",
+                desc: "Technologie anti-gravité. Flotte à 10cm.",
                 price: 499,
-                // Image PNG transparente
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-6.png",
-                // Pas d'effet spécial, juste le float
                 extraHTML: ""
             },
             {
                 id: 2,
                 name: "AQUA FLAME PRO",
-                desc: "Résistante à l'eau et propulsée par micro-combustion.",
+                desc: "Résiste à l'eau + Propulsion Feu.",
                 price: 699,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-12.png",
-                // Effet Flammes + Eau
-                extraHTML: `
-                    <div class="water-effect"></div>
-                    <div class="flame"></div><div class="flame"></div><div class="flame"></div>
-                `
+                extraHTML: `<div class="water-effect"></div><div class="flame"></div><div class="flame"></div><div class="flame"></div>`
             },
             {
                 id: 3,
                 name: "SKY RUNNER 3000",
-                desc: "Propulseurs ioniques pour des sauts de 50 mètres.",
+                desc: "Sauts de 50m avec propulseurs ioniques.",
                 price: 899,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-9.png",
-                // Effet Propulseurs
-                extraHTML: `
-                    <div class="thruster"></div><div class="thruster"></div>
-                `
+                extraHTML: `<div class="thruster"></div><div class="thruster"></div>`
             },
             {
                 id: 4,
                 name: "HOLO-GHOST",
-                desc: "Sneaker en pure lumière solide. Change de couleur.",
+                desc: "Lumière solide holographique.",
                 price: 1200,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-5.png",
-                // Effet Scanline Hologramme
                 extraHTML: `<div class="scan-line"></div>`,
                 style: "opacity: 0.9; filter: hue-rotate(90deg) drop-shadow(0 0 10px cyan);"
             },
             {
                 id: 5,
                 name: "MAGMA STRIKE",
-                desc: "Semelle en obsidienne fondue. Chaud mais stable.",
+                desc: "Semelle en obsidienne fondue.",
                 price: 750,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-4.png",
                 extraHTML: `<div class="flame" style="left:20%"></div><div class="flame" style="left:80%"></div>`
@@ -403,21 +299,21 @@
             {
                 id: 6,
                 name: "VOID WALKER",
-                desc: "Pour marcher dans le vide intersidéral.",
+                desc: "Marchez dans le vide spatial.",
                 price: 1599,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-3.png",
                 extraHTML: `<div class="particle" style="top:50%; left:50%; box-shadow: 0 0 50px white;"></div>`
             }
         ];
 
-        // --- 2. MOTEUR D'AFFICHAGE ---
+        // --- 2. INITIALISATION ---
         const grid = document.querySelector('.product-grid');
+        let cart = JSON.parse(localStorage.getItem('nexus-cart')) || [];
         
+        // Générer les produits
         products.forEach(product => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            
-            // Style optionnel (pour l'hologramme par ex)
             const imgStyle = product.style ? `style="${product.style}"` : "";
 
             card.innerHTML = `
@@ -435,17 +331,15 @@
                 </div>
             `;
             
-            // Effet Tilt 3D
+            // Tilt Effect 3D
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                const rotateX = ((y - rect.height/2) / 10) * -1; // Inversé pour plus de réalisme
+                const rotateX = ((y - rect.height/2) / 10) * -1;
                 const rotateY = (x - rect.width/2) / 10;
-                
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
             });
-            
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
             });
@@ -453,34 +347,77 @@
             grid.appendChild(card);
         });
 
+        // Mise à jour initiale du panier
+        updateCartDisplay();
+
         // --- 3. LOGIQUE PANIER ---
-        let cart = JSON.parse(localStorage.getItem('nexus-cart')) || [];
-        updateCartCount();
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('active');
+            document.getElementById('cart-overlay').classList.toggle('active');
+        }
 
         function addToCart(id, btnElement) {
             const product = products.find(p => p.id === id);
             cart.push(product);
-            localStorage.setItem('nexus-cart', JSON.stringify(cart));
-            updateCartCount();
-
-            // Animation du bouton
+            saveCart();
+            
+            // Feedback Bouton
             const originalText = btnElement.innerText;
             btnElement.innerText = "✓ AJOUTÉ";
             btnElement.style.background = "#00ff88";
             btnElement.style.color = "#000";
-            
             setTimeout(() => {
                 btnElement.innerText = originalText;
                 btnElement.style.background = "transparent";
                 btnElement.style.color = "#00ff88";
             }, 1000);
+
+            toggleCart(); // Ouvre le panier
         }
 
-        function updateCartCount() {
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('nexus-cart', JSON.stringify(cart));
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
             document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="color:#aaa; text-align:center; margin-top:50px;">Votre arsenal est vide.</p>';
+                totalEl.innerText = "0€";
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price;
+                html += `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            <h4>${item.name}</h4>
+                            <div style="color:#00ff88">${item.price}€</div>
+                            <span class="remove-btn" onclick="removeFromCart(${index})">RETIRER</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            totalEl.innerText = total + "€";
         }
 
-        // --- 4. PARTICULES & CURSEUR ---
+        // --- 4. PARTICULES & FX ---
         const particlesContainer = document.getElementById('particles');
         for (let i = 0; i < 50; i++) {
             const p = document.createElement('div');
