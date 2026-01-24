@@ -281,19 +281,19 @@
             <input type="tel" id="dz-phone" placeholder="Ex: 05 50 12 34 56">
         </div>
 
+        <!-- Ce selecteur sera rempli par Firebase -->
         <div class="form-group">
-            <label>Wilaya / Zone de Livraison</label>
-            <select id="dz-wilaya" onchange="updateTotalWithShipping()">
-                <option value="0">-- Choisir votre Zone --</option>
-                <option value="400">Alger (Centre & Environs) - 400 DA</option>
-                <option value="800">Autres Wilayas (Nord) - 800 DA</option>
-                <option value="1200">Sud & Sahara - 1200 DA</option>
+            <label>Type de Livraison</label>
+            <select id="dz-delivery-type" onchange="updateTotalWithShipping()">
+                <option value="0">-- Chargement des tarifs... --</option>
+                <option value="800">🏠 Domicile (Par défaut 800 DA)</option>
+                <option value="400">🏢 Bureau / Stop-Desk (Par défaut 400 DA)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>Adresse Précise (Commune, Rue...)</label>
-            <input type="text" id="dz-address" placeholder="Ex: Cité 2004, Bab Ezzouar">
+            <label>Adresse Précise (Wilaya, Commune, Rue...)</label>
+            <input type="text" id="dz-address" placeholder="Ex: Alger, Cité 2004, Batiment B">
         </div>
         
         <div class="form-group">
@@ -312,7 +312,7 @@
             </div>
             <div class="summary-row">
                 <span>Livraison:</span>
-                <span id="summary-shipping">0 DA</span>
+                <span id="summary-shipping">--</span>
             </div>
             <div class="summary-total">
                 <span>TOTAL FINAL:</span>
@@ -339,7 +339,7 @@
     <section class="products" id="products">
         <h2>🚀 SÉLECTION DU FUTUR</h2>
         <div class="product-grid">
-            <!-- Produits générés via JS -->
+            <!-- Produits générés via JS (Firebase) -->
         </div>
     </section>
 
@@ -347,104 +347,126 @@
         <p>© 2024 NEXUS SNEAKERS - Delivery all over Algeria 🇩🇿</p>
     </footer>
 
+    <!-- SDK FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <script>
-        // --- 1. CONFIGURATION DES PRODUITS ---
-        const products = [
-            {
-                id: 1,
-                name: "NEXUS FLOAT X1",
-                desc: "Technologie anti-gravité. Flotte à 10cm.",
-                price: 18000,
-                image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-6.png",
-                extraHTML: ""
-            },
-            {
-                id: 2,
-                name: "AQUA FLAME PRO",
-                desc: "Résiste à l'eau + Propulsion Feu.",
-                price: 22000,
-                image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-12.png",
-                extraHTML: `<div class="water-effect"></div><div class="flame"></div><div class="flame"></div><div class="flame"></div>`
-            },
-            {
-                id: 3,
-                name: "SKY RUNNER 3000",
-                desc: "Sauts de 50m avec propulseurs ioniques.",
-                price: 25000,
-                image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-9.png",
-                extraHTML: `<div class="thruster"></div><div class="thruster"></div>`
-            },
-            {
-                id: 4,
-                name: "HOLO-GHOST",
-                desc: "Lumière solide holographique.",
-                price: 30000,
-                image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-5.png",
-                extraHTML: `<div class="scan-line"></div>`,
-                style: "opacity: 0.9; filter: hue-rotate(90deg) drop-shadow(0 0 10px cyan);"
-            },
-            {
-                id: 5,
-                name: "MAGMA STRIKE",
-                desc: "Semelle en obsidienne fondue.",
-                price: 19500,
-                image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-4.png",
-                extraHTML: `<div class="flame" style="left:20%"></div><div class="flame" style="left:80%"></div>`
-            },
-            {
-                id: 6,
-                name: "VOID WALKER",
-                desc: "Marchez dans le vide spatial.",
-                price: 35000,
-                image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-3.png",
-                extraHTML: `<div class="particle" style="top:50%; left:50%; box-shadow: 0 0 50px white;"></div>`
-            }
-        ];
+        // ==========================================================
+        // ⚠️ REMPLACE CI-DESSOUS AVEC TA CONFIGURATION FIREBASE ⚠️
+        // ==========================================================
+        const firebaseConfig = {
+            apiKey: "TA_CLE_API_ICI",
+            authDomain: "ton-projet.firebaseapp.com",
+            projectId: "ton-projet",
+            storageBucket: "ton-projet.appspot.com",
+            messagingSenderId: "123456...",
+            appId: "1:123456..."
+        };
+        // ==========================================================
 
-        // --- 2. INITIALISATION ---
-        const grid = document.querySelector('.product-grid');
+        // Initialisation Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Variables Globales
+        let products = [];
+        let deliveryPrices = { home: 800, desk: 400 }; // Valeurs par défaut si firebase est lent
         let cart = JSON.parse(localStorage.getItem('nexus-cart')) || [];
-        
-        // Générer les produits
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            const imgStyle = product.style ? `style="${product.style}"` : "";
 
-            card.innerHTML = `
-                <div class="shoe-container">
-                    <div class="shoe-wrapper">
-                        <img src="${product.image}" alt="${product.name}" ${imgStyle}>
-                        ${product.extraHTML}
-                    </div>
-                </div>
-                <div class="product-info">
-                    <h3>${product.name}</h3>
-                    <p>${product.desc}</p>
-                    <div class="price">${product.price.toLocaleString()} DA</div>
-                    <button class="buy-button" onclick="addToCart(${product.id}, this)">COMMANDER</button>
-                </div>
-            `;
+        // --- 1. CHARGEMENT DES DONNÉES ---
+        async function initSite() {
+            console.log("Connexion Firebase...");
+
+            // A. Charger les prix livraison depuis Firebase
+            try {
+                const doc = await db.collection("config").doc("shipping").get();
+                if (doc.exists) {
+                    deliveryPrices = doc.data();
+                    
+                    // Mettre à jour le selecteur HTML
+                    const select = document.getElementById('dz-delivery-type');
+                    select.options[1].text = `🏠 Domicile (+${deliveryPrices.home} DA)`;
+                    select.options[1].value = deliveryPrices.home;
+                    select.options[2].text = `🏢 Bureau / Stop-Desk (+${deliveryPrices.desk} DA)`;
+                    select.options[2].value = deliveryPrices.desk;
+                }
+            } catch (e) { console.error("Erreur config livraison", e); }
+
+            // B. Charger les produits depuis Firebase
+            try {
+                const snapshot = await db.collection("products").orderBy("createdAt", "desc").get();
+                products = [];
+                snapshot.forEach(doc => {
+                    let p = doc.data();
+                    p.id = doc.id; // On garde l'ID Firebase
+                    products.push(p);
+                });
+                renderProducts(); // Afficher les produits
+            } catch (e) { console.error("Erreur chargement produits", e); }
             
-            // Tilt Effect 3D
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const rotateX = ((y - rect.height/2) / 10) * -1;
-                const rotateY = (x - rect.width/2) / 10;
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            updateCartDisplay();
+        }
+
+        initSite();
+
+        // --- 2. AFFICHAGE (RENDER) ---
+        function renderProducts() {
+            const grid = document.querySelector('.product-grid');
+            grid.innerHTML = "";
+
+            if(products.length === 0) {
+                grid.innerHTML = "<p style='text-align:center; width:100%; color:#aaa;'>Aucun produit en stock pour le moment.</p>";
+                return;
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                // Gestion des effets spéciaux
+                let extraHTML = "";
+                let imgStyle = "";
+                if(product.effect === 'fire') extraHTML = `<div class="water-effect"></div><div class="flame"></div><div class="flame"></div>`;
+                if(product.effect === 'thruster') extraHTML = `<div class="thruster"></div><div class="thruster"></div>`;
+                if(product.effect === 'hologram') {
+                    extraHTML = `<div class="scan-line"></div>`;
+                    imgStyle = `style="opacity: 0.9; filter: hue-rotate(90deg) drop-shadow(0 0 10px cyan);"`;
+                }
+
+                card.innerHTML = `
+                    <div class="shoe-container">
+                        <div class="shoe-wrapper">
+                            <img src="${product.image}" alt="${product.name}" ${imgStyle}>
+                            ${extraHTML}
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p>${product.desc}</p>
+                        <div class="price">${product.price.toLocaleString()} DA</div>
+                        <button class="buy-button" onclick="addToCart('${product.id}', this)">COMMANDER</button>
+                    </div>
+                `;
+                
+                // Effet Tilt 3D
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const rotateX = ((y - rect.height/2) / 10) * -1;
+                    const rotateY = (x - rect.width/2) / 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+                });
+
+                grid.appendChild(card);
             });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
-            });
+        }
 
-            grid.appendChild(card);
-        });
-
-        updateCartDisplay();
-
-        // --- 3. LOGIQUE PANIER ---
+        // --- 3. PANIER & COMMANDE ---
         function toggleCart() {
             document.getElementById('cart-sidebar').classList.toggle('active');
             document.getElementById('cart-overlay').classList.toggle('active');
@@ -464,7 +486,6 @@
                 btnElement.style.background = "transparent";
                 btnElement.style.color = "#00ff88";
             }, 1000);
-
             toggleCart();
         }
 
@@ -505,19 +526,16 @@
                     </div>
                 `;
             });
-
             container.innerHTML = html;
             totalEl.innerText = total.toLocaleString() + " DA";
         }
 
-        // --- 4. LOGIQUE COMMANDE (WHATSAPP DZ) ---
+        // --- 4. FORMULAIRE COMMANDE ---
         function openOrderModal() {
-            if(cart.length === 0) return alert("Votre panier est vide !");
-            toggleCart(); // Fermer le panier
+            if(cart.length === 0) return alert("Panier vide !");
+            toggleCart();
             document.getElementById('order-modal').classList.add('active');
             document.getElementById('cart-overlay').classList.add('active');
-            
-            // Calculer le sous-total initial
             updateTotalWithShipping();
         }
 
@@ -527,44 +545,38 @@
         }
 
         function updateTotalWithShipping() {
-            // Calculer sous-total articles
             let subtotal = 0;
             cart.forEach(item => subtotal += item.price);
-
-            // Récupérer prix livraison
-            let shipping = parseInt(document.getElementById('dz-wilaya').value) || 0;
-
-            // Total
+            
+            let shipping = parseInt(document.getElementById('dz-delivery-type').value) || 0;
             let grandTotal = subtotal + shipping;
 
-            // Afficher dans le HTML
             document.getElementById('summary-subtotal').innerText = subtotal.toLocaleString() + " DA";
-            document.getElementById('summary-shipping').innerText = shipping > 0 ? shipping + " DA" : "Choisir Wilaya";
+            document.getElementById('summary-shipping').innerText = shipping > 0 ? shipping + " DA" : "Choisir mode";
             document.getElementById('summary-grand-total').innerText = grandTotal.toLocaleString() + " DA";
         }
 
         function sendToWhatsApp() {
-            // 1. Récupérer les infos
             const name = document.getElementById('dz-name').value;
             const phone = document.getElementById('dz-phone').value;
-            const wilayaValue = document.getElementById('dz-wilaya');
-            const wilayaText = wilayaValue.options[wilayaValue.selectedIndex].text;
-            const shippingPrice = parseInt(wilayaValue.value) || 0;
             const address = document.getElementById('dz-address').value;
             const payment = document.getElementById('dz-payment').value;
+            
+            const deliverySelect = document.getElementById('dz-delivery-type');
+            const deliveryPrice = parseInt(deliverySelect.value) || 0;
+            const deliveryLabel = deliverySelect.options[deliverySelect.selectedIndex].text;
 
-            if(!name || !phone || !address || shippingPrice === 0) {
-                alert("Merci de remplir toutes les informations et choisir votre Wilaya.");
+            if(!name || !phone || !address || deliveryPrice === 0) {
+                alert("Merci de remplir tous les champs et choisir la livraison !");
                 return;
             }
 
-            // 2. Créer le résumé de la commande
-            let message = `*NOUVELLE COMMANDE NEXUS SNEAKERS* 🚀\n\n`;
+            let message = `*NOUVELLE COMMANDE NEXUS* 🚀\n\n`;
             message += `👤 *Nom:* ${name}\n`;
             message += `📱 *Tél:* ${phone}\n`;
-            message += `📍 *Zone:* ${wilayaText}\n`;
-            message += `🏠 *Adresse:* ${address}\n`;
-            message += `💰 *Paiement:* ${payment === 'baridimob' ? 'BaridiMob/CCP' : 'Main à main'}\n\n`;
+            message += `🚚 *Mode:* ${deliveryLabel}\n`;
+            message += `📍 *Adresse:* ${address}\n`;
+            message += `💰 *Paiement:* ${payment}\n\n`;
             message += `*--- PANIER ---*\n`;
 
             let subtotal = 0;
@@ -573,28 +585,20 @@
                 subtotal += item.price;
             });
 
-            let grandTotal = subtotal + shippingPrice;
+            let grandTotal = subtotal + deliveryPrice;
 
-            message += `\n📦 *Sous-total:* ${subtotal} DA`;
-            message += `\n🚚 *Livraison:* ${shippingPrice} DA`;
+            message += `\n📦 Sous-total: ${subtotal} DA`;
+            message += `\n🚚 Livraison: ${deliveryPrice} DA`;
             message += `\n💵 *TOTAL FINAL: ${grandTotal} DA*`;
 
-            if(payment === 'baridimob') {
-                message += `\n\n(J'attends votre RIB pour faire le virement)`;
-            }
-
-            // 3. Encoder pour l'URL WhatsApp
-            // REMPLACE LE NUMERO CI-DESSOUS PAR LE TIEN (Format international sans le +)
-            // Ex: pour 05 50... mets 213550...
+            // ⚠️ METS TON NUMÉRO ALGÉRIEN ICI (Sans le +, ex: 213550...) ⚠️
             const phoneNumber = "213550000000"; 
             
             const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            
-            // 4. Ouvrir WhatsApp
             window.open(url, '_blank');
         }
-
-        // --- 5. PARTICULES & FX ---
+        
+        // --- 5. PARTICULES (Effets visuels) ---
         const particlesContainer = document.getElementById('particles');
         for (let i = 0; i < 50; i++) {
             const p = document.createElement('div');
