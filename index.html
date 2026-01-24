@@ -118,6 +118,14 @@
         }
         .form-group input:focus { border-color: #00ff88; }
         
+        /* Résumé Prix dans le modal */
+        .order-summary {
+            background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 10px;
+            margin-bottom: 15px; border: 1px dashed #00ff88;
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #ccc; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; color: #00ff88; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
+
         .whatsapp-btn {
             width: 100%; padding: 15px; background: #25D366; color: #fff;
             border: none; font-weight: bold; font-size: 16px; border-radius: 5px;
@@ -251,7 +259,7 @@
         </div>
         <div class="cart-footer">
             <div class="total-row">
-                <span>TOTAL:</span>
+                <span>ARTICLES:</span>
                 <span id="cart-total">0 DA</span>
             </div>
             <!-- Bouton pour ouvrir le formulaire DZ -->
@@ -262,24 +270,54 @@
     <!-- FORMULAIRE DE COMMANDE DZ -->
     <div class="order-modal" id="order-modal">
         <h2>INFOS DE LIVRAISON</h2>
+        
         <div class="form-group">
             <label>Nom Complet</label>
             <input type="text" id="dz-name" placeholder="Ex: Mohamed Amine">
         </div>
+        
         <div class="form-group">
             <label>Numéro de Téléphone</label>
             <input type="tel" id="dz-phone" placeholder="Ex: 05 50 12 34 56">
         </div>
+
         <div class="form-group">
-            <label>Wilaya / Commune</label>
-            <input type="text" id="dz-address" placeholder="Ex: Alger, Bab Ezzouar">
+            <label>Wilaya / Zone de Livraison</label>
+            <select id="dz-wilaya" onchange="updateTotalWithShipping()">
+                <option value="0">-- Choisir votre Zone --</option>
+                <option value="400">Alger (Centre & Environs) - 400 DA</option>
+                <option value="800">Autres Wilayas (Nord) - 800 DA</option>
+                <option value="1200">Sud & Sahara - 1200 DA</option>
+            </select>
         </div>
+
+        <div class="form-group">
+            <label>Adresse Précise (Commune, Rue...)</label>
+            <input type="text" id="dz-address" placeholder="Ex: Cité 2004, Bab Ezzouar">
+        </div>
+        
         <div class="form-group">
             <label>Mode de Paiement</label>
             <select id="dz-payment">
-                <option value="main-a-main">💵 Paiement à la livraison (Main à main)</option>
+                <option value="main-a-main">💵 Paiement à la livraison</option>
                 <option value="baridimob">💳 BaridiMob / CCP</option>
             </select>
+        </div>
+
+        <!-- RÉSUMÉ DU PRIX -->
+        <div class="order-summary">
+            <div class="summary-row">
+                <span>Prix Articles:</span>
+                <span id="summary-subtotal">0 DA</span>
+            </div>
+            <div class="summary-row">
+                <span>Livraison:</span>
+                <span id="summary-shipping">0 DA</span>
+            </div>
+            <div class="summary-total">
+                <span>TOTAL FINAL:</span>
+                <span id="summary-grand-total">0 DA</span>
+            </div>
         </div>
         
         <button class="whatsapp-btn" onclick="sendToWhatsApp()">
@@ -404,7 +442,6 @@
             grid.appendChild(card);
         });
 
-        // Mise à jour initiale du panier
         updateCartDisplay();
 
         // --- 3. LOGIQUE PANIER ---
@@ -418,7 +455,6 @@
             cart.push(product);
             saveCart();
             
-            // Feedback Bouton
             const originalText = btnElement.innerText;
             btnElement.innerText = "✓ AJOUTÉ";
             btnElement.style.background = "#00ff88";
@@ -429,7 +465,7 @@
                 btnElement.style.color = "#00ff88";
             }, 1000);
 
-            toggleCart(); // Ouvre le panier
+            toggleCart();
         }
 
         function removeFromCart(index) {
@@ -479,7 +515,10 @@
             if(cart.length === 0) return alert("Votre panier est vide !");
             toggleCart(); // Fermer le panier
             document.getElementById('order-modal').classList.add('active');
-            document.getElementById('cart-overlay').classList.add('active'); // Réutiliser l'overlay noir
+            document.getElementById('cart-overlay').classList.add('active');
+            
+            // Calculer le sous-total initial
+            updateTotalWithShipping();
         }
 
         function closeOrderModal() {
@@ -487,15 +526,35 @@
             document.getElementById('cart-overlay').classList.remove('active');
         }
 
+        function updateTotalWithShipping() {
+            // Calculer sous-total articles
+            let subtotal = 0;
+            cart.forEach(item => subtotal += item.price);
+
+            // Récupérer prix livraison
+            let shipping = parseInt(document.getElementById('dz-wilaya').value) || 0;
+
+            // Total
+            let grandTotal = subtotal + shipping;
+
+            // Afficher dans le HTML
+            document.getElementById('summary-subtotal').innerText = subtotal.toLocaleString() + " DA";
+            document.getElementById('summary-shipping').innerText = shipping > 0 ? shipping + " DA" : "Choisir Wilaya";
+            document.getElementById('summary-grand-total').innerText = grandTotal.toLocaleString() + " DA";
+        }
+
         function sendToWhatsApp() {
             // 1. Récupérer les infos
             const name = document.getElementById('dz-name').value;
             const phone = document.getElementById('dz-phone').value;
+            const wilayaValue = document.getElementById('dz-wilaya');
+            const wilayaText = wilayaValue.options[wilayaValue.selectedIndex].text;
+            const shippingPrice = parseInt(wilayaValue.value) || 0;
             const address = document.getElementById('dz-address').value;
             const payment = document.getElementById('dz-payment').value;
 
-            if(!name || !phone || !address) {
-                alert("Merci de remplir toutes les informations pour la livraison.");
+            if(!name || !phone || !address || shippingPrice === 0) {
+                alert("Merci de remplir toutes les informations et choisir votre Wilaya.");
                 return;
             }
 
@@ -503,17 +562,22 @@
             let message = `*NOUVELLE COMMANDE NEXUS SNEAKERS* 🚀\n\n`;
             message += `👤 *Nom:* ${name}\n`;
             message += `📱 *Tél:* ${phone}\n`;
-            message += `📍 *Adresse:* ${address}\n`;
+            message += `📍 *Zone:* ${wilayaText}\n`;
+            message += `🏠 *Adresse:* ${address}\n`;
             message += `💰 *Paiement:* ${payment === 'baridimob' ? 'BaridiMob/CCP' : 'Main à main'}\n\n`;
             message += `*--- PANIER ---*\n`;
 
-            let total = 0;
+            let subtotal = 0;
             cart.forEach(item => {
                 message += `👟 ${item.name} - ${item.price} DA\n`;
-                total += item.price;
+                subtotal += item.price;
             });
 
-            message += `\n💵 *TOTAL À PAYER: ${total} DA*`;
+            let grandTotal = subtotal + shippingPrice;
+
+            message += `\n📦 *Sous-total:* ${subtotal} DA`;
+            message += `\n🚚 *Livraison:* ${shippingPrice} DA`;
+            message += `\n💵 *TOTAL FINAL: ${grandTotal} DA*`;
 
             if(payment === 'baridimob') {
                 message += `\n\n(J'attends votre RIB pour faire le virement)`;
@@ -528,9 +592,6 @@
             
             // 4. Ouvrir WhatsApp
             window.open(url, '_blank');
-            
-            // Optionnel : Vider le panier après commande
-            // cart = []; saveCart(); closeOrderModal();
         }
 
         // --- 5. PARTICULES & FX ---
