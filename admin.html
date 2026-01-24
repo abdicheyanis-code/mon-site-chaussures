@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS ADMIN - Firebase</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1, h2 { color: #ff6600; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .card { background: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+        label { display: block; color: #aaa; margin-bottom: 5px; font-size: 14px; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 15px; background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 5px; }
+        
+        .row { display: flex; gap: 10px; }
+        button { width: 100%; padding: 12px; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; border-radius: 5px; }
+        .btn-add { background: #00ff88; color: #000; }
+        .btn-save { background: #ff6600; color: #fff; }
+        .btn-delete { background: #ff0055; color: #fff; width: auto; font-size: 12px; padding: 5px 10px; }
+
+        .product-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #333; }
+        .product-list-item img { width: 40px; height: 40px; object-fit: contain; background: #000; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔥 Admin Firebase</h1>
+
+    <!-- 1. GESTION LIVRAISON -->
+    <div class="card">
+        <h2>🚚 Tarifs Livraison</h2>
+        <div class="row">
+            <div style="flex:1">
+                <label>Livraison Domicile (DA)</label>
+                <input type="number" id="price-home">
+            </div>
+            <div style="flex:1">
+                <label>Livraison Bureau / Stop Desk (DA)</label>
+                <input type="number" id="price-desk">
+            </div>
+        </div>
+        <button class="btn-save" onclick="saveShipping()">Mettre à jour les tarifs</button>
+    </div>
+
+    <!-- 2. AJOUTER PRODUIT -->
+    <div class="card">
+        <h2>👟 Ajouter une Sneaker</h2>
+        <input type="text" id="p-name" placeholder="Nom du modèle">
+        <input type="text" id="p-desc" placeholder="Description courte">
+        <div class="row">
+            <input type="number" id="p-price" placeholder="Prix (DA)">
+            <select id="p-effect">
+                <option value="">Effet: Aucun (Flottant)</option>
+                <option value="fire">Effet: Flammes & Eau</option>
+                <option value="thruster">Effet: Propulseurs</option>
+                <option value="hologram">Effet: Hologramme</option>
+            </select>
+        </div>
+        <input type="text" id="p-image" placeholder="URL de l'image (Lien direct PNG/JPG)">
+        <button class="btn-add" onclick="addProduct()">Publier l'article</button>
+    </div>
+
+    <!-- 3. LISTE PRODUITS -->
+    <div class="card">
+        <h2>📦 Stock en ligne</h2>
+        <div id="stock-list">Chargement...</div>
+    </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+    // --- ⚠️ COLLE TA CONFIGURATION FIREBASE ICI ⚠️ ---
+   const firebaseConfig = {
+  apiKey: "AIzaSyAckRBM3F4l5XlRi7ShrZ5RcqeVXS8_9wE",
+  authDomain: "nexus-dz-shop.firebaseapp.com",
+  projectId: "nexus-dz-shop",
+  storageBucket: "nexus-dz-shop.firebasestorage.app",
+  messagingSenderId: "837117080668",
+  appId: "1:837117080668:web:7839c50d9ef3881ae52299",
+  measurementId: "G-YBLGD7VJXR"
+};
+    // --------------------------------------------------
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 1. Charger les données au démarrage
+    loadShipping();
+    loadProducts();
+
+    // --- FONCTIONS LIVRAISON ---
+    function loadShipping() {
+        db.collection("config").doc("shipping").get().then((doc) => {
+            if (doc.exists) {
+                document.getElementById('price-home').value = doc.data().home;
+                document.getElementById('price-desk').value = doc.data().desk;
+            } else {
+                // Créer le document s'il n'existe pas
+                db.collection("config").doc("shipping").set({ home: 800, desk: 400 });
+                document.getElementById('price-home').value = 800;
+                document.getElementById('price-desk').value = 400;
+            }
+        });
+    }
+
+    function saveShipping() {
+        const home = Number(document.getElementById('price-home').value);
+        const desk = Number(document.getElementById('price-desk').value);
+        
+        db.collection("config").doc("shipping").set({ home, desk })
+            .then(() => alert("Tarifs mis à jour !"))
+            .catch((error) => alert("Erreur: " + error));
+    }
+
+    // --- FONCTIONS PRODUITS ---
+    function addProduct() {
+        const name = document.getElementById('p-name').value;
+        const desc = document.getElementById('p-desc').value;
+        const price = Number(document.getElementById('p-price').value);
+        const image = document.getElementById('p-image').value;
+        const effect = document.getElementById('p-effect').value;
+
+        if(!name || !price || !image) return alert("Remplis tout !");
+
+        db.collection("products").add({
+            name, desc, price, image, effect,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert("Produit ajouté !");
+            document.getElementById('p-name').value = ""; // Vider
+            loadProducts();
+        });
+    }
+
+    function loadProducts() {
+        const list = document.getElementById('stock-list');
+        list.innerHTML = "Chargement...";
+        
+        db.collection("products").orderBy("createdAt", "desc").get().then((querySnapshot) => {
+            list.innerHTML = "";
+            querySnapshot.forEach((doc) => {
+                const p = doc.data();
+                list.innerHTML += `
+                    <div class="product-list-item">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${p.image}">
+                            <div>
+                                <strong>${p.name}</strong>
+                                <div style="color:#00ff88; font-size:12px;">${p.price} DA</div>
+                            </div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteProduct('${doc.id}')">Supprimer</button>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    function deleteProduct(id) {
+        if(confirm("Supprimer ?")) {
+            db.collection("products").doc(id).delete().then(() => loadProducts());
+        }
+    }
+</script>
+</body>
+</html>
