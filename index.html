@@ -99,6 +99,33 @@
         }
         .checkout-btn:hover { background: #fff; box-shadow: 0 0 20px #fff; }
 
+        /* --- FORMULAIRE COMMANDE DZ (Modal) --- */
+        .order-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+            width: 90%; max-width: 500px; background: #0a0a12;
+            border: 2px solid #00ff88; padding: 30px; z-index: 10000;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.4); border-radius: 20px;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .order-modal.active { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+        
+        .order-modal h2 { text-align: center; color: #00ff88; margin-bottom: 20px; text-transform: uppercase; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #aaa; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; background: rgba(255,255,255,0.1);
+            border: 1px solid #333; color: #fff; border-radius: 5px; outline: none;
+        }
+        .form-group input:focus { border-color: #00ff88; }
+        
+        .whatsapp-btn {
+            width: 100%; padding: 15px; background: #25D366; color: #fff;
+            border: none; font-weight: bold; font-size: 16px; border-radius: 5px;
+            cursor: pointer; text-transform: uppercase; margin-top: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .whatsapp-btn:hover { background: #128C7E; }
+
         /* --- HERO --- */
         .hero {
             height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -212,7 +239,7 @@
         </nav>
     </header>
 
-    <!-- Panier (Caché par défaut) -->
+    <!-- Panier (Sidebar) -->
     <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
@@ -225,17 +252,47 @@
         <div class="cart-footer">
             <div class="total-row">
                 <span>TOTAL:</span>
-                <span id="cart-total">0€</span>
+                <span id="cart-total">0 DA</span>
             </div>
-            <button class="checkout-btn" onclick="alert('Module de paiement Stripe en cours d\'intégration...')">PROCÉDER AU PAIEMENT</button>
+            <!-- Bouton pour ouvrir le formulaire DZ -->
+            <button class="checkout-btn" onclick="openOrderModal()">VALIDER LA COMMANDE</button>
         </div>
+    </div>
+
+    <!-- FORMULAIRE DE COMMANDE DZ -->
+    <div class="order-modal" id="order-modal">
+        <h2>INFOS DE LIVRAISON</h2>
+        <div class="form-group">
+            <label>Nom Complet</label>
+            <input type="text" id="dz-name" placeholder="Ex: Mohamed Amine">
+        </div>
+        <div class="form-group">
+            <label>Numéro de Téléphone</label>
+            <input type="tel" id="dz-phone" placeholder="Ex: 05 50 12 34 56">
+        </div>
+        <div class="form-group">
+            <label>Wilaya / Commune</label>
+            <input type="text" id="dz-address" placeholder="Ex: Alger, Bab Ezzouar">
+        </div>
+        <div class="form-group">
+            <label>Mode de Paiement</label>
+            <select id="dz-payment">
+                <option value="main-a-main">💵 Paiement à la livraison (Main à main)</option>
+                <option value="baridimob">💳 BaridiMob / CCP</option>
+            </select>
+        </div>
+        
+        <button class="whatsapp-btn" onclick="sendToWhatsApp()">
+            CONFIRMER SUR WHATSAPP 📱
+        </button>
+        <div style="text-align:center; margin-top:10px; cursor:pointer; color:#555;" onclick="closeOrderModal()">Annuler</div>
     </div>
 
     <!-- Hero -->
     <section class="hero" id="home">
         <div class="hero-content">
             <h1>FUTURE IS NOW</h1>
-            <p>La première boutique de sneakers quantiques.</p>
+            <p>La première boutique de sneakers quantiques en Algérie.</p>
             <button class="cta-button" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">VOIR LA COLLECTION</button>
         </div>
     </section>
@@ -249,7 +306,7 @@
     </section>
 
     <footer>
-        <p>© 2024 NEXUS SNEAKERS - The Future of Footwear</p>
+        <p>© 2024 NEXUS SNEAKERS - Delivery all over Algeria 🇩🇿</p>
     </footer>
 
     <script>
@@ -259,7 +316,7 @@
                 id: 1,
                 name: "NEXUS FLOAT X1",
                 desc: "Technologie anti-gravité. Flotte à 10cm.",
-                price: 499,
+                price: 18000,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-6.png",
                 extraHTML: ""
             },
@@ -267,7 +324,7 @@
                 id: 2,
                 name: "AQUA FLAME PRO",
                 desc: "Résiste à l'eau + Propulsion Feu.",
-                price: 699,
+                price: 22000,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-12.png",
                 extraHTML: `<div class="water-effect"></div><div class="flame"></div><div class="flame"></div><div class="flame"></div>`
             },
@@ -275,7 +332,7 @@
                 id: 3,
                 name: "SKY RUNNER 3000",
                 desc: "Sauts de 50m avec propulseurs ioniques.",
-                price: 899,
+                price: 25000,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-9.png",
                 extraHTML: `<div class="thruster"></div><div class="thruster"></div>`
             },
@@ -283,7 +340,7 @@
                 id: 4,
                 name: "HOLO-GHOST",
                 desc: "Lumière solide holographique.",
-                price: 1200,
+                price: 30000,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-5.png",
                 extraHTML: `<div class="scan-line"></div>`,
                 style: "opacity: 0.9; filter: hue-rotate(90deg) drop-shadow(0 0 10px cyan);"
@@ -292,7 +349,7 @@
                 id: 5,
                 name: "MAGMA STRIKE",
                 desc: "Semelle en obsidienne fondue.",
-                price: 750,
+                price: 19500,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-4.png",
                 extraHTML: `<div class="flame" style="left:20%"></div><div class="flame" style="left:80%"></div>`
             },
@@ -300,7 +357,7 @@
                 id: 6,
                 name: "VOID WALKER",
                 desc: "Marchez dans le vide spatial.",
-                price: 1599,
+                price: 35000,
                 image: "https://parspng.com/wp-content/uploads/2023/02/shoespng.parspng.com-3.png",
                 extraHTML: `<div class="particle" style="top:50%; left:50%; box-shadow: 0 0 50px white;"></div>`
             }
@@ -326,7 +383,7 @@
                 <div class="product-info">
                     <h3>${product.name}</h3>
                     <p>${product.desc}</p>
-                    <div class="price">${product.price}€</div>
+                    <div class="price">${product.price.toLocaleString()} DA</div>
                     <button class="buy-button" onclick="addToCart(${product.id}, this)">COMMANDER</button>
                 </div>
             `;
@@ -392,7 +449,7 @@
             
             if (cart.length === 0) {
                 container.innerHTML = '<p style="color:#aaa; text-align:center; margin-top:50px;">Votre arsenal est vide.</p>';
-                totalEl.innerText = "0€";
+                totalEl.innerText = "0 DA";
                 return;
             }
 
@@ -406,7 +463,7 @@
                         <img src="${item.image}" alt="${item.name}">
                         <div class="cart-item-info">
                             <h4>${item.name}</h4>
-                            <div style="color:#00ff88">${item.price}€</div>
+                            <div style="color:#00ff88">${item.price.toLocaleString()} DA</div>
                             <span class="remove-btn" onclick="removeFromCart(${index})">RETIRER</span>
                         </div>
                     </div>
@@ -414,10 +471,69 @@
             });
 
             container.innerHTML = html;
-            totalEl.innerText = total + "€";
+            totalEl.innerText = total.toLocaleString() + " DA";
         }
 
-        // --- 4. PARTICULES & FX ---
+        // --- 4. LOGIQUE COMMANDE (WHATSAPP DZ) ---
+        function openOrderModal() {
+            if(cart.length === 0) return alert("Votre panier est vide !");
+            toggleCart(); // Fermer le panier
+            document.getElementById('order-modal').classList.add('active');
+            document.getElementById('cart-overlay').classList.add('active'); // Réutiliser l'overlay noir
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').classList.remove('active');
+            document.getElementById('cart-overlay').classList.remove('active');
+        }
+
+        function sendToWhatsApp() {
+            // 1. Récupérer les infos
+            const name = document.getElementById('dz-name').value;
+            const phone = document.getElementById('dz-phone').value;
+            const address = document.getElementById('dz-address').value;
+            const payment = document.getElementById('dz-payment').value;
+
+            if(!name || !phone || !address) {
+                alert("Merci de remplir toutes les informations pour la livraison.");
+                return;
+            }
+
+            // 2. Créer le résumé de la commande
+            let message = `*NOUVELLE COMMANDE NEXUS SNEAKERS* 🚀\n\n`;
+            message += `👤 *Nom:* ${name}\n`;
+            message += `📱 *Tél:* ${phone}\n`;
+            message += `📍 *Adresse:* ${address}\n`;
+            message += `💰 *Paiement:* ${payment === 'baridimob' ? 'BaridiMob/CCP' : 'Main à main'}\n\n`;
+            message += `*--- PANIER ---*\n`;
+
+            let total = 0;
+            cart.forEach(item => {
+                message += `👟 ${item.name} - ${item.price} DA\n`;
+                total += item.price;
+            });
+
+            message += `\n💵 *TOTAL À PAYER: ${total} DA*`;
+
+            if(payment === 'baridimob') {
+                message += `\n\n(J'attends votre RIB pour faire le virement)`;
+            }
+
+            // 3. Encoder pour l'URL WhatsApp
+            // REMPLACE LE NUMERO CI-DESSOUS PAR LE TIEN (Format international sans le +)
+            // Ex: pour 05 50... mets 213550...
+            const phoneNumber = "213550000000"; 
+            
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            
+            // 4. Ouvrir WhatsApp
+            window.open(url, '_blank');
+            
+            // Optionnel : Vider le panier après commande
+            // cart = []; saveCart(); closeOrderModal();
+        }
+
+        // --- 5. PARTICULES & FX ---
         const particlesContainer = document.getElementById('particles');
         for (let i = 0; i < 50; i++) {
             const p = document.createElement('div');
