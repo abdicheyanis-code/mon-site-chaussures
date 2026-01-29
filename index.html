@@ -3,633 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS SNEAKERS - Future of Footwear</title>
+    <title>NEXUS SNEAKERS - Official Store</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
     <style>
         /* --- CSS GLOBAL --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Orbitron', 'Segoe UI', sans-serif;
-            background: #000;
-            color: #fff;
-            overflow-x: hidden;
-            cursor: crosshair;
+            background: #000; color: #fff; overflow-x: hidden; cursor: crosshair;
         }
 
-        /* --- PARTICULES --- */
+        /* --- STYLES BOUTIQUE (EXISTANTS) --- */
         .particles { position: fixed; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .particle {
             position: absolute; width: 2px; height: 2px; background: #00ff88;
             border-radius: 50%; animation: float 8s infinite; box-shadow: 0 0 10px #00ff88;
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-100vh) translateX(50px); }
-        }
+        @keyframes float { 0%, 100% { opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100vh); } }
 
-        /* --- HEADER --- */
         header {
-            position: fixed; width: 100%; padding: 20px 50px;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 1000; background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px); border-bottom: 2px solid #00ff88;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            position: fixed; width: 100%; padding: 20px 50px; display: flex; justify-content: space-between;
+            align-items: center; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ff88;
         }
-        .logo {
-            font-size: 32px; font-weight: bold;
-            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: glow 2s ease-in-out infinite; letter-spacing: 4px;
-        }
-        nav { display: flex; gap: 30px; }
-        nav a {
-            color: #00ff88; text-decoration: none; font-weight: bold;
-            padding: 10px 20px; border: 2px solid transparent; transition: all 0.3s;
-            cursor: pointer;
-        }
-        nav a:hover {
-            border: 2px solid #00ff88; box-shadow: 0 0 20px #00ff88; transform: translateY(-3px);
-        }
+        .logo { font-size: 28px; font-weight: bold; color: #00ff88; letter-spacing: 2px; }
+        nav a { color: #00ff88; margin-left: 20px; text-decoration: none; font-weight: bold; cursor: pointer; }
 
-        /* --- PANIER (SIDEBAR) --- */
-        .cart-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 9998;
-            opacity: 0; pointer-events: none; transition: 0.3s;
-            backdrop-filter: blur(5px);
-        }
-        .cart-overlay.active { opacity: 1; pointer-events: all; }
-
-        .cart-sidebar {
-            position: fixed; top: 0; right: -450px; width: 400px; height: 100%;
-            background: #0a0a12; border-left: 2px solid #00ff88;
-            z-index: 9999; padding: 25px; display: flex; flex-direction: column;
-            transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-            box-shadow: -10px 0 50px rgba(0, 255, 136, 0.2);
-        }
-        .cart-sidebar.active { right: 0; }
-
-        .cart-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px;
-        }
-        .cart-header h2 { color: #00ff88; font-size: 22px; text-transform: uppercase; }
-        .close-cart { background: none; border: none; color: #fff; font-size: 30px; cursor: pointer; transition: 0.3s; }
-        .close-cart:hover { color: #ff0055; transform: rotate(90deg); }
-
-        .cart-items { flex: 1; overflow-y: auto; }
-        .cart-item {
-            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
-            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1); animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* HERO & PRODUCTS */
+        .hero { height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 2; position: relative; }
+        .hero h1 { font-size: 60px; color: transparent; -webkit-text-stroke: 2px #00ff88; margin-bottom: 20px; }
         
-        .cart-item img { width: 70px; height: 50px; object-fit: contain; }
-        .cart-item-info h4 { font-size: 14px; margin-bottom: 5px; color: #fff; }
-        .remove-btn { color: #ff0055; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; display: inline-block;}
-        .remove-btn:hover { text-decoration: underline; }
-
-        .cart-footer { border-top: 1px solid #333; padding-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #fff; }
-        .checkout-btn {
-            width: 100%; padding: 18px; background: #00ff88; color: #000;
-            border: none; font-weight: bold; cursor: pointer; font-size: 16px;
-            text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;
-        }
-        .checkout-btn:hover { background: #fff; box-shadow: 0 0 20px #fff; }
-
-        /* --- FORMULAIRE COMMANDE DZ (Modal) --- */
-        .order-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
-            width: 90%; max-width: 500px; background: #0a0a12;
-            border: 2px solid #00ff88; padding: 30px; z-index: 10000;
-            box-shadow: 0 0 50px rgba(0, 255, 136, 0.4); border-radius: 20px;
-            opacity: 0; pointer-events: none; transition: 0.3s;
-        }
-        .order-modal.active { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
-        
-        .order-modal h2 { text-align: center; color: #00ff88; margin-bottom: 20px; text-transform: uppercase; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #aaa; font-size: 14px; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; background: rgba(255,255,255,0.1);
-            border: 1px solid #333; color: #fff; border-radius: 5px; outline: none;
-        }
-        .form-group input:focus { border-color: #00ff88; }
-        
-        /* Résumé Prix dans le modal */
-        .order-summary {
-            background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 10px;
-            margin-bottom: 15px; border: 1px dashed #00ff88;
-        }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #ccc; }
-        .summary-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; color: #00ff88; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
-
-        .whatsapp-btn {
-            width: 100%; padding: 15px; background: #25D366; color: #fff;
-            border: none; font-weight: bold; font-size: 16px; border-radius: 5px;
-            cursor: pointer; text-transform: uppercase; margin-top: 10px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .whatsapp-btn:hover { background: #128C7E; }
-
-        /* --- HERO --- */
-        .hero {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            position: relative; z-index: 2;
-            background: radial-gradient(circle at center, #1a0033 0%, #000 100%);
-        }
-        .hero-content { text-align: center; z-index: 10; }
-        .hero h1 {
-            font-size: 80px; margin-bottom: 20px;
-            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00ff, #00ff88);
-            background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: gradientMove 3s ease infinite; text-transform: uppercase; letter-spacing: 8px;
-        }
-        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .cta-button {
-            padding: 20px 50px; font-size: 20px; border: none;
-            background: linear-gradient(45deg, #ff00ff, #00ff88);
-            color: #fff; font-weight: bold; cursor: pointer; transition: all 0.3s;
-            text-transform: uppercase; letter-spacing: 2px;
-        }
-        .cta-button:hover { transform: scale(1.1); box-shadow: 0 0 50px #ff00ff; }
-
-        /* --- PRODUCTS --- */
-        .products { padding: 100px 50px; position: relative; z-index: 2; }
-        .products h2 {
-            text-align: center; font-size: 60px; margin-bottom: 80px;
-            background: linear-gradient(45deg, #00ff88, #ff00ff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 50px; perspective: 1000px; }
+        .products { padding: 50px; z-index: 2; position: relative; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
         .product-card {
-            background: rgba(20, 20, 40, 0.6); border: 2px solid #00ff88;
-            border-radius: 20px; padding: 30px; position: relative;
-            transform-style: preserve-3d; transition: all 0.1s ease-out; cursor: pointer; overflow: hidden;
+            background: rgba(20,20,20,0.8); border: 1px solid #333; padding: 20px; border-radius: 15px;
+            text-align: center; transition: 0.3s; position: relative; overflow: hidden;
         }
+        .product-card:hover { border-color: #00ff88; transform: translateY(-10px); }
+        .product-card img { width: 100%; height: 200px; object-fit: contain; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); }
         
-        .shoe-container { width: 100%; height: 250px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
-        .shoe-wrapper {
-            width: 280px; height: 180px; position: relative;
-            display: flex; justify-content: center; align-items: center;
-            animation: floatShoe 3s ease-in-out infinite;
-        }
-        .shoe-wrapper img {
-            max-width: 100%; max-height: 100%; transform: rotate(-15deg);
-            filter: drop-shadow(0 20px 20px rgba(0,0,0,0.6)); z-index: 5; transition: transform 0.3s;
-        }
-        .product-card:hover .shoe-wrapper img { transform: rotate(-20deg) scale(1.1); }
-        @keyframes floatShoe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .price { font-size: 24px; color: #00d4ff; margin: 15px 0; font-weight: bold; }
+        .buy-button { width: 100%; padding: 10px; background: #00ff88; border: none; font-weight: bold; cursor: pointer; }
 
-        /* EFFETS SPÉCIAUX */
-        .flame {
-            position: absolute; bottom: 20px; width: 20px; height: 40px;
-            background: linear-gradient(to top, #ff6600, #ffff00, transparent);
-            border-radius: 50% 50% 0 0; animation: flameFlicker 0.5s ease-in-out infinite;
-            z-index: 1; filter: blur(2px);
+        /* --- ADMIN PANEL (CACHÉ PAR DÉFAUT) --- */
+        #admin-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 20000; padding: 50px; overflow-y: auto;
         }
-        .flame:nth-child(2) { left: 30%; } .flame:nth-child(3) { left: 50%; animation-delay: 0.1s; } .flame:nth-child(4) { left: 70%; animation-delay: 0.2s; }
-        @keyframes flameFlicker { 0%, 100% { transform: scaleY(1) translateY(0); opacity: 0.8; } 50% { transform: scaleY(1.3) translateY(-10px); opacity: 1; } }
-
-        .water-effect {
-            position: absolute; bottom: -20px; width: 100%; height: 30px;
-            background: radial-gradient(ellipse at center, #00d4ff 0%, transparent 70%);
-            opacity: 0.6; animation: waterRipple 2s ease-in-out infinite;
-        }
-        @keyframes waterRipple { 0%, 100% { transform: scaleX(0.8); opacity: 0.4; } 50% { transform: scaleX(1.2); opacity: 0.7; } }
-
-        .thruster {
-            position: absolute; bottom: 10px; width: 25px; height: 60px;
-            background: linear-gradient(to bottom, #00ffff, #ff00ff, transparent);
-            filter: blur(4px); animation: thrusterBlast 0.2s linear infinite; z-index: 1;
-        }
-        .thruster:nth-child(2) { left: 20%; transform: rotate(10deg); } .thruster:nth-child(3) { right: 20%; transform: rotate(-10deg); }
-        @keyframes thrusterBlast { 0% { height: 50px; opacity: 0.8; } 100% { height: 70px; opacity: 0.4; } }
-
-        .scan-line {
-            position: absolute; width: 100%; height: 4px; background: #00ff88;
-            box-shadow: 0 0 15px #00ff88; top: 0; z-index: 10; animation: scan 2s linear infinite; opacity: 0.7;
-        }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-
-        .product-info h3 { font-size: 24px; color: #00ff88; margin-bottom: 10px; text-transform: uppercase; }
-        .product-info p { color: #aaa; margin-bottom: 15px; }
-        .price { font-size: 28px; color: #ff00ff; font-weight: bold; margin-bottom: 20px; }
-        .buy-button {
-            width: 100%; padding: 15px; border: 2px solid #00ff88; background: transparent;
-            color: #00ff88; font-size: 18px; font-weight: bold; cursor: pointer;
-            transition: all 0.3s; text-transform: uppercase;
-        }
-        .buy-button:hover { background: #00ff88; color: #000; box-shadow: 0 0 30px #00ff88; }
-
-        footer { padding: 50px; text-align: center; background: rgba(0, 0, 0, 0.9); border-top: 2px solid #00ff88; position: relative; z-index: 2; }
+        #admin-overlay.active { display: block; }
         
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 40px; } header { padding: 15px 20px; } nav { display: none; }
-            .product-grid { grid-template-columns: 1fr; } .cart-sidebar { width: 100%; }
+        .admin-header { display: flex; justify-content: space-between; border-bottom: 2px solid #ff0055; padding-bottom: 20px; margin-bottom: 30px; }
+        .admin-title { color: #ff0055; font-size: 30px; }
+        .close-admin { background: transparent; color: #fff; font-size: 20px; border: 1px solid #fff; padding: 5px 15px; cursor: pointer; }
+
+        .admin-section { background: #111; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
+        .admin-section h3 { color: #aaa; margin-bottom: 15px; }
+        
+        .admin-input { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: #fff; margin-bottom: 10px; }
+        .admin-btn { width: 100%; padding: 15px; background: #ff0055; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+        
+        /* LOGIN MODAL */
+        #login-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 30000; align-items: center; justify-content: center;
         }
+        #login-modal.flex { display: flex; }
+
+        /* PANIER & MODAL DZ (Copier du code précédent) */
+        .cart-sidebar { position: fixed; top: 0; right: -400px; width: 350px; height: 100%; background: #111; z-index: 5000; transition: 0.3s; padding: 20px; border-left: 1px solid #00ff88; }
+        .cart-sidebar.active { right: 0; }
+        .order-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #111; padding: 30px; border: 2px solid #00ff88; z-index: 6000; width: 90%; max-width: 400px; }
+        .order-modal.active { display: block; }
+
+        /* Footer */
+        footer { padding: 40px; text-align: center; border-top: 1px solid #333; margin-top: 50px; position: relative; z-index: 2;}
+        .secret-admin-link { color: #111; cursor: pointer; font-size: 12px; } /* Quasi invisible */
+        .secret-admin-link:hover { color: #ff0055; }
     </style>
 </head>
 <body>
-    <!-- Fond -->
     <div class="particles" id="particles"></div>
 
-    <!-- Header -->
+    <!-- HEADER -->
     <header>
-        <div class="logo">⚡ NEXUS SNEAKERS</div>
+        <div class="logo">NEXUS</div>
         <nav>
-            <a href="#home">ACCUEIL</a>
-            <a href="#products">COLLECTION</a>
-            <!-- Le bouton Panier déclenche le JS -->
             <a onclick="toggleCart()">PANIER (<span id="cart-count">0</span>)</a>
         </nav>
     </header>
 
-    <!-- Panier (Sidebar) -->
-    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
-    <div class="cart-sidebar" id="cart-sidebar">
-        <div class="cart-header">
-            <h2>VOTRE ARSENAL</h2>
-            <button class="close-cart" onclick="toggleCart()">×</button>
-        </div>
-        <div class="cart-items" id="cart-items-container">
-            <!-- Items injectés ici via JS -->
-        </div>
-        <div class="cart-footer">
-            <div class="total-row">
-                <span>ARTICLES:</span>
-                <span id="cart-total">0 DA</span>
-            </div>
-            <!-- Bouton pour ouvrir le formulaire DZ -->
-            <button class="checkout-btn" onclick="openOrderModal()">VALIDER LA COMMANDE</button>
-        </div>
-    </div>
-
-    <!-- FORMULAIRE DE COMMANDE DZ -->
-    <div class="order-modal" id="order-modal">
-        <h2>INFOS DE LIVRAISON</h2>
-        
-        <div class="form-group">
-            <label>Nom Complet</label>
-            <input type="text" id="dz-name" placeholder="Ex: Mohamed Amine">
-        </div>
-        
-        <div class="form-group">
-            <label>Numéro de Téléphone</label>
-            <input type="tel" id="dz-phone" placeholder="Ex: 05 50 12 34 56">
-        </div>
-
-        <!-- Ce selecteur sera rempli par Firebase -->
-        <div class="form-group">
-            <label>Type de Livraison</label>
-            <select id="dz-delivery-type" onchange="updateTotalWithShipping()">
-                <option value="0">-- Chargement des tarifs... --</option>
-                <option value="800">🏠 Domicile (Par défaut 800 DA)</option>
-                <option value="400">🏢 Bureau / Stop-Desk (Par défaut 400 DA)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Adresse Précise (Wilaya, Commune, Rue...)</label>
-            <input type="text" id="dz-address" placeholder="Ex: Alger, Cité 2004, Batiment B">
-        </div>
-        
-        <div class="form-group">
-            <label>Mode de Paiement</label>
-            <select id="dz-payment">
-                <option value="main-a-main">💵 Paiement à la livraison</option>
-                <option value="baridimob">💳 BaridiMob / CCP</option>
-            </select>
-        </div>
-
-        <!-- RÉSUMÉ DU PRIX -->
-        <div class="order-summary">
-            <div class="summary-row">
-                <span>Prix Articles:</span>
-                <span id="summary-subtotal">0 DA</span>
-            </div>
-            <div class="summary-row">
-                <span>Livraison:</span>
-                <span id="summary-shipping">--</span>
-            </div>
-            <div class="summary-total">
-                <span>TOTAL FINAL:</span>
-                <span id="summary-grand-total">0 DA</span>
-            </div>
-        </div>
-        
-        <button class="whatsapp-btn" onclick="sendToWhatsApp()">
-            CONFIRMER SUR WHATSAPP 📱
-        </button>
-        <div style="text-align:center; margin-top:10px; cursor:pointer; color:#555;" onclick="closeOrderModal()">Annuler</div>
-    </div>
-
-    <!-- Hero -->
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <h1>FUTURE IS NOW</h1>
-            <p>La première boutique de sneakers quantiques en Algérie.</p>
-            <button class="cta-button" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">VOIR LA COLLECTION</button>
+    <!-- HERO -->
+    <section class="hero">
+        <div>
+            <h1>FUTURE FOOTWEAR</h1>
+            <p>La référence Sneaker en Algérie 🇩🇿</p>
         </div>
     </section>
 
-    <!-- Grid Produits -->
-    <section class="products" id="products">
-        <h2>🚀 SÉLECTION DU FUTUR</h2>
-        <div class="product-grid">
-            <!-- Produits générés via JS (Firebase) -->
+    <!-- BOUTIQUE -->
+    <section class="products">
+        <div class="product-grid" id="product-grid">
+            <!-- LES PRODUITS S'AFFICHERONT ICI -->
+            <p style="text-align:center; width:100%;">Chargement du stock...</p>
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer>
-        <p>© 2024 NEXUS SNEAKERS - Delivery all over Algeria 🇩🇿</p>
+        <p>© 2024 NEXUS DZ</p>
+        <!-- LE BOUTON SECRET POUR L'ADMIN EST ICI (Le petit cadenas) -->
+        <span class="secret-admin-link" onclick="openLogin()">🔒 Admin Access</span>
     </footer>
 
-    <!-- SDK FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <!-- ================== ESPACE ADMIN CACHÉ ================== -->
+    
+    <!-- 1. LOGIN -->
+    <div id="login-modal">
+        <div style="text-align:center;">
+            <h2 style="color:#ff0055; margin-bottom:20px;">SÉCURITÉ NEXUS</h2>
+            <input type="password" id="admin-pass" placeholder="Mot de passe" class="admin-input" style="text-align:center;">
+            <button class="admin-btn" onclick="checkLogin()">DÉVERROUILLER</button>
+            <button style="background:none; border:none; color:#aaa; margin-top:10px; cursor:pointer;" onclick="closeLogin()">Annuler</button>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD -->
+    <div id="admin-overlay">
+        <div class="admin-header">
+            <div class="admin-title">🛠️ DASHBOARD VENDEUR</div>
+            <button class="close-admin" onclick="closeAdmin()">RETOUR AU SITE</button>
+        </div>
+
+        <div class="admin-section">
+            <h3>🚚 PRIX DE LIVRAISON (DA)</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="adm-ship-home" placeholder="Domicile" class="admin-input">
+                <input type="number" id="adm-ship-desk" placeholder="Bureau" class="admin-input">
+            </div>
+            <button class="admin-btn" style="background:#00d4ff; color:#000;" onclick="saveConfig()">ENREGISTRER PRIX</button>
+        </div>
+
+        <div class="admin-section">
+            <h3>👟 AJOUTER UN PRODUIT</h3>
+            <input type="text" id="adm-name" placeholder="Nom du modèle" class="admin-input">
+            <input type="text" id="adm-desc" placeholder="Description courte" class="admin-input">
+            <input type="number" id="adm-price" placeholder="Prix (DA)" class="admin-input">
+            <input type="text" id="adm-img" placeholder="Lien Image (URL)" class="admin-input">
+            <select id="adm-effect" class="admin-input">
+                <option value="">Effet: Aucun</option>
+                <option value="fire">Effet: Feu</option>
+                <option value="thruster">Effet: Propulseur</option>
+            </select>
+            <button class="admin-btn" onclick="addProduct()">PUBLIER L'ARTICLE</button>
+        </div>
+
+        <div class="admin-section">
+            <h3>📦 GESTION STOCK</h3>
+            <div id="admin-list" style="color:#fff;"></div>
+        </div>
+    </div>
+
+    <!-- ================== PANIER & COMMANDE ================== -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <h2 style="color:#00ff88; border-bottom:1px solid #333; padding-bottom:10px;">PANIER</h2>
+        <div id="cart-items" style="height: 70%; overflow-y:auto; margin:20px 0;"></div>
+        <div style="border-top:1px solid #333; padding-top:20px;">
+            <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:bold;">
+                <span>Total:</span> <span id="cart-total">0 DA</span>
+            </div>
+            <button class="buy-button" onclick="openOrder()">COMMANDER</button>
+            <button onclick="toggleCart()" style="width:100%; background:#333; border:none; color:#fff; padding:10px; margin-top:10px; cursor:pointer;">FERMER</button>
+        </div>
+    </div>
+
+    <div class="order-modal" id="order-modal">
+        <h2 style="color:#00ff88; text-align:center; margin-bottom:20px;">LIVRAISON</h2>
+        <input type="text" id="dz-name" placeholder="Nom complet" class="admin-input">
+        <input type="tel" id="dz-phone" placeholder="Téléphone" class="admin-input">
+        <select id="dz-delivery" class="admin-input" onchange="calcTotal()">
+            <option value="0">-- Chargement Tarifs --</option>
+        </select>
+        <input type="text" id="dz-addr" placeholder="Adresse (Wilaya, Commune...)" class="admin-input">
+        
+        <div style="background:#222; padding:10px; margin:10px 0; border:1px dashed #00ff88;">
+            <div>Articles: <span id="sum-items">0</span> DA</div>
+            <div>Livraison: <span id="sum-ship">0</span> DA</div>
+            <div style="font-weight:bold; color:#00ff88; font-size:18px; margin-top:5px;">TOTAL: <span id="sum-total">0</span> DA</div>
+        </div>
+
+        <button class="buy-button" onclick="sendWhatsapp()">CONFIRMER SUR WHATSAPP 📱</button>
+        <button onclick="document.getElementById('order-modal').classList.remove('active')" style="width:100%; background:none; border:none; color:#aaa; margin-top:10px; cursor:pointer;">Annuler</button>
+    </div>
 
     <script>
         // ==========================================================
-        // ⚠️ REMPLACE CI-DESSOUS AVEC TA CONFIGURATION FIREBASE ⚠️
+        // ⚠️ REMPLACE ICI AVEC TA CONFIGURATION FIREBASE ⚠️
         // ==========================================================
-       const firebaseConfig = {
-  apiKey: "AIzaSyAckRBM3F4l5XlRi7ShrZ5RcqeVXS8_9wE",
-  authDomain: "nexus-dz-shop.firebaseapp.com",
-  projectId: "nexus-dz-shop",
-  storageBucket: "nexus-dz-shop.firebasestorage.app",
-  messagingSenderId: "837117080668",
-  appId: "1:837117080668:web:7839c50d9ef3881ae52299",
-  measurementId: "G-YBLGD7VJXR"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "ton-projet.firebaseapp.com",
+            projectId: "ton-projet",
+            storageBucket: "ton-projet.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
         // ==========================================================
 
-        // Initialisation Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Variables Globales
         let products = [];
-        let deliveryPrices = { home: 800, desk: 400 }; // Valeurs par défaut si firebase est lent
+        let deliveryConfig = { home: 800, desk: 400 };
         let cart = JSON.parse(localStorage.getItem('nexus-cart')) || [];
 
-        // --- 1. CHARGEMENT DES DONNÉES ---
-        async function initSite() {
-            console.log("Connexion Firebase...");
-
-            // A. Charger les prix livraison depuis Firebase
+        // --- 1. INITIALISATION ---
+        async function init() {
+            // Charger Config Livraison
             try {
-                const doc = await db.collection("config").doc("shipping").get();
-                if (doc.exists) {
-                    deliveryPrices = doc.data();
-                    
-                    // Mettre à jour le selecteur HTML
-                    const select = document.getElementById('dz-delivery-type');
-                    select.options[1].text = `🏠 Domicile (+${deliveryPrices.home} DA)`;
-                    select.options[1].value = deliveryPrices.home;
-                    select.options[2].text = `🏢 Bureau / Stop-Desk (+${deliveryPrices.desk} DA)`;
-                    select.options[2].value = deliveryPrices.desk;
-                }
-            } catch (e) { console.error("Erreur config livraison", e); }
+                const doc = await db.collection('config').doc('shipping').get();
+                if(doc.exists) deliveryConfig = doc.data();
+                else await db.collection('config').doc('shipping').set(deliveryConfig); // Crée par défaut
+                
+                // Remplir les champs Admin
+                document.getElementById('adm-ship-home').value = deliveryConfig.home;
+                document.getElementById('adm-ship-desk').value = deliveryConfig.desk;
+                
+                // Remplir le select Commande
+                const sel = document.getElementById('dz-delivery');
+                sel.options.length = 0;
+                sel.options[0] = new Option(`🏠 Domicile (+${deliveryConfig.home} DA)`, deliveryConfig.home);
+                sel.options[1] = new Option(`🏢 Bureau/StopDesk (+${deliveryConfig.desk} DA)`, deliveryConfig.desk);
+                
+            } catch(e) { console.log("Init config error", e); }
 
-            // B. Charger les produits depuis Firebase
-            try {
-                const snapshot = await db.collection("products").orderBy("createdAt", "desc").get();
+            // Charger Produits
+            db.collection('products').orderBy('date', 'desc').onSnapshot(snap => {
                 products = [];
-                snapshot.forEach(doc => {
+                const grid = document.getElementById('product-grid');
+                const adminList = document.getElementById('admin-list');
+                
+                grid.innerHTML = "";
+                adminList.innerHTML = "";
+
+                snap.forEach(doc => {
                     let p = doc.data();
-                    p.id = doc.id; // On garde l'ID Firebase
+                    p.id = doc.id;
                     products.push(p);
+
+                    // Affichage CLIENT
+                    let fx = "";
+                    if(p.effect === 'fire') fx = `<div style="position:absolute; bottom:0; width:100%; height:20px; background:orange; filter:blur(10px);"></div>`;
+                    
+                    grid.innerHTML += `
+                        <div class="product-card">
+                            <div style="position:relative; height:200px; display:flex; align-items:center; justify-content:center;">
+                                <img src="${p.img}" style="position:relative; z-index:2;">
+                                ${fx}
+                            </div>
+                            <h3>${p.name}</h3>
+                            <div class="price">${p.price} DA</div>
+                            <button class="buy-button" onclick="addToCart('${p.id}')">AJOUTER</button>
+                        </div>
+                    `;
+
+                    // Affichage ADMIN (Liste simple)
+                    adminList.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; background:#222; padding:10px; margin-bottom:5px; align-items:center;">
+                            <img src="${p.img}" width="40">
+                            <span>${p.name}</span>
+                            <button style="background:red; color:white; border:none; padding:5px;" onclick="deleteProduct('${p.id}')">X</button>
+                        </div>
+                    `;
                 });
-                renderProducts(); // Afficher les produits
-            } catch (e) { console.error("Erreur chargement produits", e); }
+                
+                if(products.length === 0) grid.innerHTML = "<p>Aucun produit disponible.</p>";
+            });
             
-            updateCartDisplay();
+            updateCartUI();
+        }
+        init();
+
+        // --- 2. FONCTIONS ADMIN ---
+        function openLogin() { document.getElementById('login-modal').classList.add('flex'); }
+        function closeLogin() { document.getElementById('login-modal').classList.remove('flex'); }
+        
+        function checkLogin() {
+            const p = document.getElementById('admin-pass').value;
+            if(p === "admin123") { // ⚠️ MOT DE PASSE ADMIN ICI
+                closeLogin();
+                document.getElementById('admin-overlay').classList.add('active');
+            } else {
+                alert("Accès refusé");
+            }
+        }
+        function closeAdmin() { document.getElementById('admin-overlay').classList.remove('active'); }
+
+        function saveConfig() {
+            const home = Number(document.getElementById('adm-ship-home').value);
+            const desk = Number(document.getElementById('adm-ship-desk').value);
+            db.collection('config').doc('shipping').set({ home, desk }).then(() => alert("Tarifs mis à jour !"));
         }
 
-        initSite();
-
-        // --- 2. AFFICHAGE (RENDER) ---
-        function renderProducts() {
-            const grid = document.querySelector('.product-grid');
-            grid.innerHTML = "";
-
-            if(products.length === 0) {
-                grid.innerHTML = "<p style='text-align:center; width:100%; color:#aaa;'>Aucun produit en stock pour le moment.</p>";
-                return;
-            }
-
-            products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                
-                // Gestion des effets spéciaux
-                let extraHTML = "";
-                let imgStyle = "";
-                if(product.effect === 'fire') extraHTML = `<div class="water-effect"></div><div class="flame"></div><div class="flame"></div>`;
-                if(product.effect === 'thruster') extraHTML = `<div class="thruster"></div><div class="thruster"></div>`;
-                if(product.effect === 'hologram') {
-                    extraHTML = `<div class="scan-line"></div>`;
-                    imgStyle = `style="opacity: 0.9; filter: hue-rotate(90deg) drop-shadow(0 0 10px cyan);"`;
-                }
-
-                card.innerHTML = `
-                    <div class="shoe-container">
-                        <div class="shoe-wrapper">
-                            <img src="${product.image}" alt="${product.name}" ${imgStyle}>
-                            ${extraHTML}
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <h3>${product.name}</h3>
-                        <p>${product.desc}</p>
-                        <div class="price">${product.price.toLocaleString()} DA</div>
-                        <button class="buy-button" onclick="addToCart('${product.id}', this)">COMMANDER</button>
-                    </div>
-                `;
-                
-                // Effet Tilt 3D
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const rotateX = ((y - rect.height/2) / 10) * -1;
-                    const rotateY = (x - rect.width/2) / 10;
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
-                });
-
-                grid.appendChild(card);
+        function addProduct() {
+            const name = document.getElementById('adm-name').value;
+            const price = Number(document.getElementById('adm-price').value);
+            const img = document.getElementById('adm-img').value;
+            const effect = document.getElementById('adm-effect').value;
+            
+            if(!name || !price) return alert("Nom et Prix obligatoires");
+            
+            db.collection('products').add({
+                name, price, img, effect,
+                date: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("Produit ajouté !");
+                // Reset inputs
+                document.getElementById('adm-name').value = "";
+                document.getElementById('adm-price').value = "";
             });
         }
 
-        // --- 3. PANIER & COMMANDE ---
-        function toggleCart() {
-            document.getElementById('cart-sidebar').classList.toggle('active');
-            document.getElementById('cart-overlay').classList.toggle('active');
+        function deleteProduct(id) {
+            if(confirm("Supprimer ce produit ?")) db.collection('products').doc(id).delete();
         }
 
-        function addToCart(id, btnElement) {
-            const product = products.find(p => p.id === id);
-            cart.push(product);
+        // --- 3. FONCTIONS CLIENT (Panier) ---
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            cart.push(p);
             saveCart();
-            
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "✓ AJOUTÉ";
-            btnElement.style.background = "#00ff88";
-            btnElement.style.color = "#000";
-            setTimeout(() => {
-                btnElement.innerText = originalText;
-                btnElement.style.background = "transparent";
-                btnElement.style.color = "#00ff88";
-            }, 1000);
-            toggleCart();
+            alert("Ajouté au panier !");
         }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            saveCart();
-        }
-
         function saveCart() {
             localStorage.setItem('nexus-cart', JSON.stringify(cart));
-            updateCartDisplay();
+            updateCartUI();
         }
-
-        function updateCartDisplay() {
+        function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
-            const container = document.getElementById('cart-items-container');
-            const totalEl = document.getElementById('cart-total');
-            
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="color:#aaa; text-align:center; margin-top:50px;">Votre arsenal est vide.</p>';
-                totalEl.innerText = "0 DA";
-                return;
-            }
-
-            let html = '';
+            const list = document.getElementById('cart-items');
+            list.innerHTML = "";
             let total = 0;
-
-            cart.forEach((item, index) => {
-                total += item.price;
-                html += `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}">
-                        <div class="cart-item-info">
-                            <h4>${item.name}</h4>
-                            <div style="color:#00ff88">${item.price.toLocaleString()} DA</div>
-                            <span class="remove-btn" onclick="removeFromCart(${index})">RETIRER</span>
+            cart.forEach((p, i) => {
+                total += p.price;
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px;">
+                        <span>${p.name}</span>
+                        <div style="text-align:right;">
+                            <div>${p.price} DA</div>
+                            <small style="color:red; cursor:pointer;" onclick="cart.splice(${i},1); saveCart();">Retirer</small>
                         </div>
                     </div>
                 `;
             });
-            container.innerHTML = html;
-            totalEl.innerText = total.toLocaleString() + " DA";
+            document.getElementById('cart-total').innerText = total + " DA";
         }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('active'); }
 
-        // --- 4. FORMULAIRE COMMANDE ---
-        function openOrderModal() {
-            if(cart.length === 0) return alert("Panier vide !");
+        // --- 4. COMMANDE ---
+        function openOrder() {
+            if(cart.length === 0) return alert("Panier vide");
             toggleCart();
             document.getElementById('order-modal').classList.add('active');
-            document.getElementById('cart-overlay').classList.add('active');
-            updateTotalWithShipping();
-        }
-
-        function closeOrderModal() {
-            document.getElementById('order-modal').classList.remove('active');
-            document.getElementById('cart-overlay').classList.remove('active');
-        }
-
-        function updateTotalWithShipping() {
-            let subtotal = 0;
-            cart.forEach(item => subtotal += item.price);
-            
-            let shipping = parseInt(document.getElementById('dz-delivery-type').value) || 0;
-            let grandTotal = subtotal + shipping;
-
-            document.getElementById('summary-subtotal').innerText = subtotal.toLocaleString() + " DA";
-            document.getElementById('summary-shipping').innerText = shipping > 0 ? shipping + " DA" : "Choisir mode";
-            document.getElementById('summary-grand-total').innerText = grandTotal.toLocaleString() + " DA";
-        }
-
-        function sendToWhatsApp() {
-            const name = document.getElementById('dz-name').value;
-            const phone = document.getElementById('dz-phone').value;
-            const address = document.getElementById('dz-address').value;
-            const payment = document.getElementById('dz-payment').value;
-            
-            const deliverySelect = document.getElementById('dz-delivery-type');
-            const deliveryPrice = parseInt(deliverySelect.value) || 0;
-            const deliveryLabel = deliverySelect.options[deliverySelect.selectedIndex].text;
-
-            if(!name || !phone || !address || deliveryPrice === 0) {
-                alert("Merci de remplir tous les champs et choisir la livraison !");
-                return;
-            }
-
-            let message = `*NOUVELLE COMMANDE NEXUS* 🚀\n\n`;
-            message += `👤 *Nom:* ${name}\n`;
-            message += `📱 *Tél:* ${phone}\n`;
-            message += `🚚 *Mode:* ${deliveryLabel}\n`;
-            message += `📍 *Adresse:* ${address}\n`;
-            message += `💰 *Paiement:* ${payment}\n\n`;
-            message += `*--- PANIER ---*\n`;
-
-            let subtotal = 0;
-            cart.forEach(item => {
-                message += `👟 ${item.name} - ${item.price} DA\n`;
-                subtotal += item.price;
-            });
-
-            let grandTotal = subtotal + deliveryPrice;
-
-            message += `\n📦 Sous-total: ${subtotal} DA`;
-            message += `\n🚚 Livraison: ${deliveryPrice} DA`;
-            message += `\n💵 *TOTAL FINAL: ${grandTotal} DA*`;
-
-            // ⚠️ METS TON NUMÉRO ALGÉRIEN ICI (Sans le +, ex: 213550...) ⚠️
-            const phoneNumber = "213550000000"; 
-            
-            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
+            calcTotal();
         }
         
-        // --- 5. PARTICULES (Effets visuels) ---
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 50; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random() * 100 + '%';
-            p.style.animationDelay = Math.random() * 5 + 's';
-            p.style.animationDuration = (Math.random() * 5 + 5) + 's';
-            particlesContainer.appendChild(p);
+        function calcTotal() {
+            let sub = 0; cart.forEach(p => sub += p.price);
+            let ship = Number(document.getElementById('dz-delivery').value);
+            document.getElementById('sum-items').innerText = sub;
+            document.getElementById('sum-ship').innerText = ship;
+            document.getElementById('sum-total').innerText = sub + ship;
         }
 
-        document.addEventListener('mousemove', (e) => {
-            const cursor = document.createElement('div');
-            cursor.style.position = 'fixed';
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-            cursor.style.width = '4px';
-            cursor.style.height = '4px';
-            cursor.style.background = '#00ff88';
-            cursor.style.borderRadius = '50%';
-            cursor.style.pointerEvents = 'none';
-            cursor.style.zIndex = '9999';
-            cursor.style.boxShadow = '0 0 10px #00ff88';
-            document.body.appendChild(cursor);
-            setTimeout(() => {
-                cursor.style.transition = 'all 0.5s';
-                cursor.style.transform = 'scale(3)';
-                cursor.style.opacity = '0';
-            }, 10);
-            setTimeout(() => cursor.remove(), 500);
-        });
+        function sendWhatsapp() {
+            const name = document.getElementById('dz-name').value;
+            const phone = document.getElementById('dz-phone').value;
+            const addr = document.getElementById('dz-addr').value;
+            const shipPrice = Number(document.getElementById('dz-delivery').value);
+            
+            if(!name || !phone) return alert("Remplissez les infos !");
+
+            let msg = `*NOUVELLE COMMANDE* 🚀\n👤 ${name}\n📱 ${phone}\n📍 ${addr}\n\n`;
+            cart.forEach(p => msg += `👟 ${p.name} - ${p.price} DA\n`);
+            
+            let sub = 0; cart.forEach(p => sub += p.price);
+            msg += `\n📦 Sous-total: ${sub} DA`;
+            msg += `\n🚚 Livraison: ${shipPrice} DA`;
+            msg += `\n💰 *TOTAL: ${sub + shipPrice} DA*`;
+
+            // ⚠️ TON NUMÉRO ICI
+            window.open(`https://wa.me/213550000000?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // --- PARTICULES ---
+        const pc = document.getElementById('particles');
+        for(let i=0; i<30; i++) {
+            let d = document.createElement('div'); d.className='particle';
+            d.style.left = Math.random()*100+'%'; d.style.animationDelay = Math.random()*5+'s';
+            pc.appendChild(d);
+        }
     </script>
 </body>
 </html>
